@@ -2,6 +2,8 @@
 
 Two scripts and one prompt, so that the first hour does not leak anything you would rather keep to yourself. 中文版：[PRIVACY.zh-CN.md](PRIVACY.zh-CN.md)
 
+> The terms used here — "birth", "private folders", "the map", "ticket" — are explained in [section 3 of the guide](GUIDE.md#3-a-few-terms).
+
 ## 1. Find your private folders — before `birth`
 
 `birth` surveys the machine. Folders on the private list are recorded only as "this folder exists"; nothing inside is looked at, then or later.

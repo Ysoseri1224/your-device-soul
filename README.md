@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="assets/hero.png" alt="A black cat sitting on top of a window" width="560">
+<img src="assets/hero.png" alt="The black cat in four poses: happy, working, asleep, sitting" width="560">
 
 # Your Device Soul
 
-**Give your computer a soul.** A quiet black cat that lives on your desktop, sees what you're doing on this machine, remembers your days, and acts for you — only after you nod.
+An AI assistant that lives on your Windows desktop. It knows what you are doing on this computer and remembers what you did each day. It can operate the computer for you, but every change waits for your approval.
 
 **[English](README.md) | [中文](README.zh-CN.md)**
 
@@ -15,80 +15,100 @@
 
 </div>
 
-It is not a floating chat box. It is a cat that treats your windows as a cat tree, a crate it sleeps in, and a few small things scattered on your screen: tickets, paw prints, sticky tags, circles and margin notes.
+## Why this exists
+
+AI assistants that live in a chat window are awkward in three ways:
+
+- **They don't know your computer.** What is installed, where your projects are — you explain it again every time.
+- **They don't know what you were just doing.** After an afternoon in your editor, you switch to the chat and it knows nothing about that afternoon.
+- **Letting them act is uncomfortable either way.** The ones that only chat can't do anything. The ones that control the computer often tell you what they changed after the fact.
+
+Your Device Soul addresses these three points. After installation it takes an inventory of the computer and keeps it as plain-text lists. From then on it notes, in the background, which program and which project you are working in, and keeps a daily log. It can read files, run commands and click buttons in other programs — but you grant permissions place by place, and they are enforced by code rather than by asking the model to behave.
+
+On screen it is a black cat that sits on the window you are using and rarely speaks first.
 
 <div align="center">
-<img src="assets/ticket.png" alt="A ticket waiting for approval above the chat panel" width="48%"> <img src="assets/marks.png" alt="A tag clipped on a window, a circle and a margin note" width="48%">
+<img src="assets/ticket.png" alt="A pending action shown as a ticket above the chat panel" width="48%"> <img src="assets/marks.png" alt="A note clipped to a window, a circled spot and a note beside some text" width="48%">
 </div>
 
-## Quick Start
+<sub>Left: an action it wants to take is listed as a "ticket" and waits for you to click <i>Do</i>. Right: marks it leaves on screen — a note clipped to a window, a circled spot, a comment beside a piece of text. Both images are UI previews, not a real desktop.</sub>
 
-Windows 10/11, PowerShell 7. Grab the zip from [Releases](https://github.com/Ysoseri1224/your-device-soul/releases), unzip, then:
+## Getting started
+
+You need Windows 10 or 11, [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows), and an AI model it can call (see "Which model" below).
+
+Download the zip from [Releases](https://github.com/Ysoseri1224/your-device-soul/releases), unzip it, and in that folder:
 
 ```powershell
-.\ysoul-app.exe        # first launch opens a setup page: your name, private folders, model
-.\ysoul.exe birth      # once: it surveys this machine and writes its first notes (~10 min)
-.\ysoul.exe setup      # optional: right-click menu, `ys` command, Start-menu entry, AI-tool hooks
+.\ysoul-app.exe     # start it. The first launch opens a setup window: your name, folders it must not read, which model
+.\ysoul.exe birth   # run once, about ten minutes: inventories this computer and lets it write its first notes
 ```
 
-Building from source: `cargo build --release` in `runtime/` and in `app/src-tauri/`. The release binaries are not code-signed, so SmartScreen will ask once.
+Then click the crate in the bottom-right corner of the screen and choose *Chat*.
 
-You need one working model channel. It **discovers** what is already on your machine — Claude Code, providers configured in [cc-switch](https://github.com/farion1231/cc-switch), `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` style environment variables, a local Ollama — and you pick the order.
+The binaries are not code-signed, so Windows shows a security prompt on first run. To build from source, run `cargo build --release` in both `runtime` and `app/src-tauri`.
 
-## What it does, and when
+## What it does
 
-| You… | It… |
+| Situation | What happens |
 |---|---|
-| stay in a window for 20 seconds | hops out of its crate and sits on that window's top edge |
-| stop touching the keyboard for a minute | curls up and sleeps; goes home after five |
-| type until your text reaches its feet | steps aside, or perches on a line of text that has blank space above it |
-| press `Ctrl+Alt+Space` | gives you a one-line prompt at the cursor; the answer appears right there |
-| select some text and ask "what does this mean?" | knows "this" is your selection |
-| right-click a file → *Hand to ysoul* | can read that one file, even inside a private folder |
-| say "open DeepL" | opens it — no model call needed |
-| say "turn off that updater's autostart" | hands you a **ticket**: what, where, how to undo. Nothing runs until you click *Do* |
-| say "search for black cats in Firefox and click the second result" | opens the page, scrolls freely, asks before it clicks — and stops asking after you've approved that app twice |
-| say "have Claude Code fix the typos in this repo" | files a ticket that hands the job to that tool, in that folder, with your words verbatim |
-| say "convert this with ffmpeg" | looks up which programs on this machine expose a CLI, a URL scheme or an automation interface, asks the program for `--help` if it has never used it, then calls it |
-| come back after ten minutes | *might* say one line. Mostly it chooses not to. Right-click the bubble to shush it for two hours |
-| walk away for half an hour | turns the day's activity into a few plain sentences in its notes |
+| You stay in one window for 20 seconds | The cat leaves its crate and sits on that window's top edge |
+| You are idle for 1 minute | The cat curls up; after 5 minutes it returns to the crate |
+| Your typing reaches the spot where the cat sits | The cat moves somewhere without text |
+| You press `Ctrl+Alt+Space` | An input box appears at the cursor; the answer shows up in the same place |
+| You select some text and ask "what does this mean?" | It can read your selection |
+| You right-click a file and choose *Hand to ysoul* | It may read that file, even inside a folder you marked as off-limits |
+| You say "open DeepL" | It opens. No model call is involved |
+| You say "turn off that updater's autostart" | It creates a ticket stating what, where and how to undo. Nothing runs until you click *Do* |
+| You say "search for black cats in Firefox and open the second result" | Opening the page and scrolling need no approval; it asks before clicking. After you approve the same program twice, it stops asking |
+| You say "have Claude Code fix the typos in this project" | It creates a ticket that hands the task to that tool |
+| You come back after 10 minutes away | It may say one line, but usually doesn't. Right-click the bubble and it stays quiet for two hours |
+| You are away for half an hour | It summarises your day's activity in a few sentences and saves it to its notes |
 
-## Why this one
+The [guide](docs/GUIDE.md) covers everything: each behaviour, what triggers it, and how to adjust it.
 
-- **A gate enforced by code, not by a prompt.** Every file read and write is checked against a map of your machine (see / add / edit / delete / run, per place) before it happens. Private folders can't even be listed. We tried five ways around it — `..`, odd spellings, UNC paths, searching from a parent folder, glob patterns that carry paths — and closed them.
-- **Tickets instead of trust.** Anything that changes the machine becomes a ticket with an undo script. Read-only commands run directly; a command the program can't fully parse becomes a ticket rather than a guess.
-- **It adapts to how you grant.** Walking around (scrolling, paging) never asks. An app you've approved twice is remembered.
-- **Silence by default.** Every nudge passes hard rules before a model is even asked, and the model is told that the right answer is usually *nothing*.
-- **Your notes, in plain files.** Its memory is a folder of Markdown you can open and edit. Secrets and personal identifiers are masked before anything leaves the machine, and every outgoing prompt is logged locally.
-- **Bring your own model.** Three wire formats (Claude Code, Anthropic Messages, OpenAI chat/completions). For the latter two it runs its own tool loop through the same gate.
+## How permissions work
 
-## Documentation
+- **A permission table.** For each location on the computer, reading, creating, editing, deleting and running are set separately. Locations not in the table are read-only.
+- **A list of off-limits folders.** It cannot see inside these at all, not even file names.
+- **Checks are done by code.** Every request from the model to read or write a file, or run a command, first passes through a checking routine that consults the two items above. The model cannot skip it.
+- **Anything uncertain goes to you.** Read-only commands run directly. A command the program cannot fully analyse becomes a ticket.
+- **There is a record.** Every executed ticket keeps its output, and most can be undone with one click.
 
-| | |
-|---|---|
-| [Guide](docs/GUIDE.md) · [中文全攻略](docs/GUIDE.zh-CN.md) | setup, every feature, every trigger, how to customise |
-| [Privacy start-up](docs/PRIVACY.md) | finding your private folders; auditing before you push your own fork |
-| [Mastering the machine](docs/design/12-mastery.md) | the map, the gate, tickets, the command line, UI automation *(Chinese)* |
-| [Living](docs/design/13-living.md) · [Surface](docs/design/14-surface.md) | when it speaks, what is on screen and why *(Chinese)* |
+## Which model
 
-**Recommended:** manage model providers with [cc-switch](https://github.com/farion1231/cc-switch). Add a provider there once (endpoint, key, model name); Your Device Soul reads it and never stores the key — only which channel you picked. Then `ysoul channel` lists what it found and `ysoul channel use <id>` sets the order.
+It does not ship with a model. On start it looks for what is already on your computer: a logged-in Claude Code, providers configured in [cc-switch](https://github.com/farion1231/cc-switch), environment variables such as `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`, and a local Ollama. You choose the order in the setup window; if one fails, the next is tried.
 
-## Roadmap
+cc-switch is the recommended way to manage this: enter the endpoint, key and model name there once and Your Device Soul reads them. It never stores the key, only which entry you chose.
 
-- Multiple monitors (it only knows the primary one today)
-- Four more skins — the designs are in [`design/ysoul-skin-lab.html`](design/ysoul-skin-lab.html), waiting for hands
-- Reading screenshots through non-Claude-Code channels
-- macOS / Linux
+Both the Anthropic and the OpenAI API formats are supported; most services speak one of them.
+
+## Your data
+
+- The action log, a copy of every request sent to the model, screenshots and the timestamped activity log stay on your computer, in the `local` folder.
+- Before a request is sent, keys, e-mail addresses and account IDs in it are replaced with placeholders.
+- It does not record the windows of chat or mail programs, does not use the microphone, and does not take screenshots continuously.
+
+More in [section 11 of the guide](docs/GUIDE.md#11-where-your-data-goes) and in [Privacy setup](docs/PRIVACY.md).
+
+## Current limitations
+
+Windows only, one monitor only; the interface is in Chinese for now (the guide lists the labels); it can operate only the frontmost window; some programs (certain games, older editors) expose nothing it can operate; there is only one look, the black cat. Full list in [section 12 of the guide](docs/GUIDE.md#12-what-it-cannot-do-yet).
+
+## Planned
+
+- Multiple monitors
+- More looks. The designs are in [`design/ysoul-skin-lab.html`](design/ysoul-skin-lab.html), which opens directly in a browser
+- Screenshot reading with every model
+- macOS and Linux
 
 ## Contributing
 
-Issues and PRs are welcome — especially skins. `design/` holds clickable prototypes; the cat's engine is *generated* from `design/ysoul-surface-lab.html`, so change the prototype and run `node app/tools/extract-cat.mjs`. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and pull requests are welcome, new looks especially. The cat's drawing and animation are defined in the HTML prototypes under `design`; the code the app uses is generated from them. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Before pushing a fork that contains your own `memory/`, run `tools/audit.ps1`.
+## Before you use it
 
-## A fair warning
-
-This program can read files, run commands and click inside other applications on your behalf. The gate and the tickets are there so that it does so only where and when you allow — but read [the guide's section on what it can touch](docs/GUIDE.md#what-it-can-and-cannot-touch) before you let it loose.
+This program can read your files, run commands and click inside other programs for you. The permission system exists to keep that within what you allow, but please read [section 8 of the guide](docs/GUIDE.md#8-what-it-may-and-may-not-touch) before deciding how much to grant.
 
 ## License
 
