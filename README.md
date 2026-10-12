@@ -33,23 +33,18 @@ On screen it is a black cat that sits on the window you are using and rarely spe
 
 <sub>Left: an action it wants to take is listed as a "ticket" and waits for you to click <i>Do</i>. Right: marks it leaves on screen — a note clipped to a window, a circled spot, a comment beside a piece of text. Both images are UI previews, not a real desktop.</sub>
 
-## What using it is like
+## What it is for
 
-A few concrete moments. They have one thing in common: you do not brief it first, and you do not carry out the steps yourself.
+Think of it as a partner that lives in this computer.
 
-**You sit down in the morning and can't remember where you stopped.** Press the shortcut and ask "where did I leave off yesterday?". It checks yesterday's record and answers along the lines of: "You were in my-project all afternoon, last in form.ts; two tests were still failing." It noted that in the background yesterday. You never told it.
+It knows the computer. What is installed, where each project is, what starts at boot, which drive is nearly full — it has taken stock of all this and keeps it up to date. When you ask about the computer, it checks the actual state before answering.
 
-**An error you don't understand appears on screen.** Ask "what is this error?". It looks at your current window and explains. If the fix is a setting, it writes the change out as a confirmation slip; you approve, it makes the change, and you can undo it if it turns out wrong.
+It knows what you are doing, and is gradually getting to know you. Which projects you have been spending time on, where you stopped yesterday, how you like things done, what you have corrected it on — it keeps all of that. So you can talk to it without preamble.
 
-**The computer takes longer and longer to start.** Say "see what runs at startup and turn off what I don't need". It lists the startup items, tells you what each one is, and puts the ones it suggests disabling in front of you one by one. It is looking at what is actually on this computer, not reciting a general tutorial.
+It can operate the computer for you. Whatever you could do at this computer with the keyboard, the mouse and the command line can, in principle, be handed to it: looking things up, changing settings, organising files, operating a program, passing a job to another tool. You say what result you want and it decides how; any step that changes the computer is shown to you first.
 
-**You are writing a document and want a second pair of eyes.** Select a passage and say "have a look at this". It reads the selection and writes its comments next to the sentences they are about, so you are not going back and forth between a chat window and the document.
+For that reason it has no fixed list of features. What it can do depends on what is on this computer and how much permission you give it. The sections below describe how it behaves and how permissions are managed; the things it can do are not limited to those mentioned here.
 
-**There is a repetitive chore.** Say "sort the screenshots in Downloads into D:\pics by month". It lists which files it would move and where; once you agree, it does it.
-
-**Something is better done by another tool.** Say "have Claude Code fix the typos in this project". It passes that sentence on to the tool, to run in the project you named — and shows you first, as with everything else.
-
-In short, it is for two kinds of things. Questions about this computer and about what you have been doing lately, which it already keeps track of. And operations on the computer: you say what result you want, it does the work, and it asks before changing anything.
 
 ## Getting started
 
@@ -68,7 +63,7 @@ The binaries are not code-signed, so Windows shows a security prompt on first ru
 
 ## What it does in each situation
 
-Those were examples. This table lists what it actually does, case by case.
+This table shows what it actually does in a few common situations. It is not the full extent of what it can do.
 
 | Situation | What happens |
 |---|---|
@@ -129,6 +124,41 @@ Issues and pull requests are welcome, new looks especially. The cat's drawing an
 ## Before you use it
 
 This program can read your files, run commands and click inside other programs for you. The permission system exists to keep that within what you allow, but please read [section 8 of the guide](docs/GUIDE.md#8-what-it-may-and-may-not-touch) before deciding how much to grant.
+
+## References
+
+Material and projects consulted while building this.
+
+**Acting on a computer on someone's behalf, and limiting it**
+
+- [Claude Code's auto mode](https://anthropic.com/engineering/claude-code-auto-mode): when judging whether an action is authorised, look only at what the user said and at the action itself, not at the model's own explanation. The permission check here follows that idea.
+- OpenClaw's [exec approvals](https://docs.openclaw.ai/tools/exec-approvals) and [workspace files](https://docs.openclaw.ai/concepts/agent-workspace): keeping the assistant's memory as text files the user can edit.
+- [Codex computer use](https://developers.openai.com/codex/app/computer-use): per-application approval. "Always for this program" comes from here.
+- [Model Context Protocol](https://modelcontextprotocol.io): this project exposes its abilities as a local MCP server.
+
+**When to speak unprompted**
+
+- [Proactive Agent](https://arxiv.org/pdf/2410.12361) (Tsinghua, 2024): the main failure of proactive assistants is speaking when they should not. Silence by default comes from this paper's findings.
+- [OpenClaw's heartbeat](https://docs.openclaw.ai/gateway/heartbeat): on a timed wake-up, the default answer is "nothing to report".
+- [LangChain's ambient agents](https://blog.langchain.com/introducing-ambient-agents): three kinds of interruption — notify, question, review.
+- [Generative Agents](https://arxiv.org/pdf/2304.03442v1) (Stanford, 2023): reflect once enough has accumulated rather than on a schedule. The trigger for the daily summary is based on it.
+
+**Recording user activity**
+
+- [ActivityWatch](https://github.com/ActivityWatch/activitywatch): merging window activity into time segments, and the thresholds for "away".
+
+**Desktop pets and drawing the cat**
+
+- [Clawd on Desk](https://github.com/rullerzhou-afk/clawd-on-desk): the interaction details a desktop pet needs (click-through, edge snapping, following the mouse, sleeping) were checked against it.
+- [Black Tuxedo Cat Sprites](https://carysaurus.itch.io/black-tuxedo-cat-sprites) by Carysaurus: the main reference for the cat's look and states. The cat here is redrawn in code; none of those images are used.
+- Eadweard Muybridge's sequential photographs of a walking cat in *Animal Locomotion*: reference for the four-legged gait.
+- [vscode-pets](https://github.com/tonybaloney/vscode-pets): reference for the pet state machine.
+
+**Tools used**
+
+- [Tauri](https://tauri.app): the desktop application framework.
+- [cc-switch](https://github.com/farion1231/cc-switch): model providers are read from its configuration.
+- [GitHub README Best Practices](https://gingiris.github.io/growth-tools/blog/2026/03/29/github-readme-best-practices-how-to-write-a-readme-that-gets-stars/): the structure of the README.
 
 ## License
 
