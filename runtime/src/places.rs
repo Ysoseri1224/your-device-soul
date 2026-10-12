@@ -89,7 +89,7 @@ pub fn private_file(root: &Root) -> PathBuf {
 /// 这个目录下面有没有不能看的地方。整个搜一个目录之前要问：搜上层目录会把下层不能看的东西一并搜出来。
 pub fn hides_something(places: &[Place], dir: &Path) -> bool {
     let d = real(dir);
-    places.iter().any(|pl| !pl.see && { let p = norm(&pl.path); p != d && inside(&p, &d) })
+    places.iter().any(|pl| !pl.see && { let p = real(Path::new(&pl.path)); p != d && inside(&p, &d) })
 }
 
 /// 机主亲手交来的东西：右键"交给 ysoul"、拖到箱子上、在自己的话里写了路径。
@@ -285,7 +285,8 @@ fn inside(path: &str, dir: &str) -> bool {
 /// 这个路径属于地图上的哪个地方：取写得最具体（最长）的那一行。
 pub fn find<'a>(places: &'a [Place], path: &str) -> Option<&'a Place> {
     let p = norm(path);
-    places.iter().filter(|pl| inside(&p, &norm(&pl.path))).max_by_key(|pl| norm(&pl.path).len())
+    // 表上写的路径也换成真名再比：有人把路径写成短文件名（PROGRA~1 那种）或者经过一个目录联接，也要对得上
+    places.iter().filter(|pl| inside(&p, &real(Path::new(&pl.path)))).max_by_key(|pl| real(Path::new(&pl.path)).len())
 }
 
 /// 对这个路径做这件事，行不行。返回行不行，以及一句说明。
