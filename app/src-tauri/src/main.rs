@@ -311,6 +311,10 @@ struct SetupView {
     channels: Vec<ysoul::channels::Channel>,
     strong: Vec<String>,
     cheap: Option<String>,
+    /// 初始化（清点这台电脑、写下第一批笔记）做过没有
+    born: bool,
+    /// 数据放在哪，给用户看一眼
+    home: String,
 }
 
 /// 设置页要的东西：现在的称呼、私人目录、发现的模型通道和现在的选择。
@@ -331,7 +335,7 @@ async fn setup_load(soul: State<'_, Soul>) -> Result<SetupView, String> {
         }
         let all = ysoul::channels::discover();
         let choice = ysoul::channels::choice(&root);
-        SetupView { owner: ysoul::config::load(&root).owner, private_dirs: ysoul::config::private_dirs(&root), suggest, strong: if choice.strong.is_empty() { ysoul::channels::strong_order(&all, &choice).into_iter().map(|c| c.id).collect() } else { choice.strong.clone() }, cheap: choice.cheap.clone(), channels: all }
+        SetupView { owner: ysoul::config::load(&root).owner, private_dirs: ysoul::config::private_dirs(&root), suggest, strong: if choice.strong.is_empty() { ysoul::channels::strong_order(&all, &choice).into_iter().map(|c| c.id).collect() } else { choice.strong.clone() }, cheap: choice.cheap.clone(), channels: all, born: ysoul::birth::is_born(&root), home: root.path().display().to_string() }
     })
     .await
     .map_err(|e| e.to_string())
@@ -343,6 +347,14 @@ fn setup_save(soul: State<'_, Soul>, owner: String, private_dirs: Vec<String>, s
     ysoul::config::save(r, &ysoul::config::Config { owner, setup_done: true }).map_err(|e| e.to_string())?;
     ysoul::config::save_private_dirs(r, &private_dirs).map_err(|e| e.to_string())?;
     ysoul::channels::save_choice(r, &ysoul::channels::Choice { strong, cheap }).map_err(|e| e.to_string())
+}
+
+/// 开始初始化：开一个终端窗口去跑，这样用户看得到进度，也看得到它在查什么。十来分钟。
+#[tauri::command]
+fn birth_start(soul: State<'_, Soul>) -> Result<(), String> {
+    let cli = soul.root.cli_exe().ok_or("找不到 ysoul.exe，程序可能没有装完整")?;
+    let line = format!("& '{}' --root '{}' birth; Write-Host ''; Write-Host '做完了，可以关掉这个窗口。' -ForegroundColor Green", cli.display(), soul.root.path().display());
+    std::process::Command::new("cmd").args(["/D", "/C", "start", "ysoul", "pwsh", "-NoExit", "-NoProfile", "-Command", &line]).spawn().map(|_| ()).map_err(|e| format!("打不开终端：{e}。需要先装 PowerShell 7。"))
 }
 
 fn open_setup(app: &AppHandle) {
@@ -409,6 +421,8 @@ fn watch_cursor(app: AppHandle) {
         let mut last = (f64::MIN, f64::MIN);
         let mut last_hit: Option<bool> = None;
         let mut was_down = false;
+        // 鼠标是在它的东西上按下去的，而且还没松开（正拎着猫、拖着箱子）
+        let mut grabbed = false;
         loop {
             std::thread::sleep(Duration::from_millis(40));
             let Some(win) = app.get_webview_window("pet") else { continue };
@@ -416,16 +430,27 @@ fn watch_cursor(app: AppHandle) {
             let x = (cur.x - f64::from(pos.x)) / scale;
             let y = (cur.y - f64::from(pos.y)) / scale;
             let hit = app.state::<HitRegions>().0.lock().map(|r| r.iter().any(|b| b.contains(x, y))).unwrap_or(false);
-            if last_hit != Some(hit) {
-                let _ = win.set_ignore_cursor_events(!hit);
-                last_hit = Some(hit);
-            }
             // 机主在它的东西之外按了一下鼠标：告诉界面，摊开的那几块该收起来了
             let down = sense::left_down();
-            if down && !was_down && !hit {
-                let _ = app.emit("outside", ());
+            if down && !was_down {
+                grabbed = hit;
+                if !hit {
+                    let _ = app.emit("outside", ());
+                }
+            }
+            if !down && grabbed {
+                grabbed = false;
+                // 松手了。界面万一没收到松手的那一下（拖到了屏幕外、被别的窗口抢走），靠这个把猫放下
+                let _ = app.emit("released", ());
             }
             was_down = down;
+            // 拖着的时候鼠标常常跑到它的范围外面（拎着的猫挂在鼠标下方，范围跟不上）。
+            // 这时要是把窗口变回"点不到"，后面的移动和松手界面就都收不到了：猫停在半路，还保持被拎着的样子。所以按住期间一直算点得到
+            let live = hit || grabbed;
+            if last_hit != Some(live) {
+                let _ = win.set_ignore_cursor_events(!live);
+                last_hit = Some(live);
+            }
             if (x - last.0).abs() > 0.5 || (y - last.1).abs() > 0.5 {
                 last = (x, y);
                 let _ = app.emit("cursor", Cursor { x, y, hit });
@@ -576,7 +601,8 @@ fn cover_screen(win: &WebviewWindow) {
 }
 
 fn main() {
-    let root = Root::discover(None).or_else(|_| Root::near_exe()).expect("找不到项目根目录：程序要放在同时有 memory 和 seed 两个目录的文件夹里（或者它下面）");
+    // 开发时：数据就在项目目录里。安装版：数据在用户的数据目录里，每次启动把随程序来的初始文件铺一遍（只补缺的，不动用户的）
+    let root = Root::discover(None).or_else(|_| Root::near_exe()).or_else(|_| Root::bootstrap()).expect("找不到数据目录，也没有随程序带来的初始文件。程序可能没有装完整。");
     let session = Mutex::new(mind::last_session(&root));
     let hotkeys = hotkeys();
     let scene_root = root.clone();
@@ -603,7 +629,7 @@ fn main() {
                 })
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![say, opening, opening_seen, set_hit_regions, ui_state_load, ui_state_save, diary_today, open_memory, tickets_waiting, ticket_decide, muse, banter_reaction, yield_focus, mark_clear, tickets_today, places_view, place_toggle, quick_launch, under, setup_load, setup_save, show_menu])
+        .invoke_handler(tauri::generate_handler![say, opening, opening_seen, set_hit_regions, ui_state_load, ui_state_save, diary_today, open_memory, tickets_waiting, ticket_decide, muse, banter_reaction, yield_focus, mark_clear, tickets_today, places_view, place_toggle, quick_launch, under, setup_load, setup_save, birth_start, show_menu])
         .on_menu_event(|app, event| match event.id.as_ref() {
             "quit" => {
                 app.state::<Leaving>().0.store(true, std::sync::atomic::Ordering::Relaxed);

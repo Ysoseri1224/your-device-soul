@@ -19,9 +19,47 @@ impl Root {
                 return Ok(Root(dir));
             }
             if !dir.pop() {
-                bail!("没找到项目根目录。请在 D:\\SOUL 里运行，或用 --root 指定。");
+                bail!("没找到它的数据目录。在它的目录里运行，或用 --root 指定。");
             }
         }
+    }
+
+    /// 安装版的数据放在哪：用户目录下的 YourDeviceSoul。记忆是给人看、给人改的，所以放在好找的地方；卸载和升级程序不会动它。
+    pub fn data_dir() -> PathBuf {
+        let base = std::env::var_os("USERPROFILE").map(PathBuf::from).unwrap_or_else(|| std::env::temp_dir());
+        base.join("YourDeviceSoul")
+    }
+
+    /// 找数据目录的完整次序：明确给了的；当前目录往上；程序所在的目录往上；安装版的数据目录。
+    pub fn locate(explicit: Option<PathBuf>) -> Result<Root> {
+        if explicit.is_some() {
+            return Root::discover(explicit);
+        }
+        Root::discover(None).or_else(|_| Root::near_exe()).or_else(|_| Root::at(&Root::data_dir()))
+    }
+
+    /// 安装版每次启动时做的事：把随程序带来的初始文件（程序旁边的 skeleton 目录）铺到数据目录里。
+    /// 属于用户的（记忆、种子、提示词、私人目录的名单）只在没有的时候才放，永远不覆盖；
+    /// 属于程序的（清点电脑用的脚本、辅助脚本）每次都换成新的，这样升级之后脚本也是新的。
+    pub fn bootstrap() -> Result<Root> {
+        let exe_dir = std::env::current_exe()?.parent().map(|p| p.to_path_buf()).unwrap_or_default();
+        Root::bootstrap_from(&exe_dir.join("skeleton"), &Root::data_dir())
+    }
+
+    pub fn bootstrap_from(skeleton: &Path, data: &Path) -> Result<Root> {
+        if !skeleton.is_dir() {
+            if is_root(data) {
+                return Ok(Root(data.to_path_buf()));
+            }
+            bail!("没找到初始文件（{}）。程序可能没有装完整。", skeleton.display());
+        }
+        for (name, overwrite) in [("memory", false), ("seed", false), ("prompts", false), ("sensors", true), ("tools", true)] {
+            let src = skeleton.join(name);
+            if src.is_dir() {
+                sync(&src, &data.join(name), overwrite)?;
+            }
+        }
+        Root::at(data)
     }
 
     /// 从程序自己所在的目录往上找。桌面上那只是被双击启动的，当前目录不一定在项目里。
@@ -84,6 +122,21 @@ impl Root {
     }
 }
 
+/// 把一个目录拷到另一处。overwrite 为假时，已经有的文件不动。私人目录的名单属于用户，任何时候都不覆盖。
+fn sync(src: &Path, dst: &Path, overwrite: bool) -> Result<()> {
+    std::fs::create_dir_all(dst)?;
+    for entry in std::fs::read_dir(src)? {
+        let entry = entry?;
+        let (from, to) = (entry.path(), dst.join(entry.file_name()));
+        if from.is_dir() {
+            sync(&from, &to, overwrite)?;
+        } else if !to.exists() || (overwrite && entry.file_name() != "shallow-dirs.txt") {
+            std::fs::copy(&from, &to)?;
+        }
+    }
+    Ok(())
+}
+
 fn is_root(dir: &Path) -> bool {
     dir.join("memory").is_dir() && dir.join("seed").is_dir()
 }
@@ -105,5 +158,33 @@ mod tests {
     fn at_rejects_a_directory_without_them() {
         let t = tempfile::tempdir().unwrap();
         assert!(Root::at(t.path()).is_err());
+    }
+
+    #[test]
+    fn first_run_lays_out_the_starting_files_and_later_runs_keep_what_is_the_user_s() {
+        let d = tempfile::tempdir().unwrap();
+        let (sk, data) = (d.path().join("skeleton"), d.path().join("data"));
+        for (f, body) in [("memory/index.md", "空的索引"), ("seed/temperament.md", "默认的种子"), ("prompts/system.md", "规矩一"), ("sensors/census/census.ps1", "脚本一"), ("sensors/census/shallow-dirs.txt", "# 空的名单")] {
+            std::fs::create_dir_all(sk.join(f).parent().unwrap()).unwrap();
+            std::fs::write(sk.join(f), body).unwrap();
+        }
+        let root = Root::bootstrap_from(&sk, &data).unwrap();
+        assert_eq!(std::fs::read_to_string(root.memory().join("index.md")).unwrap(), "空的索引");
+        // 用户用了一阵：记了东西、改了规矩、填了私人目录
+        std::fs::write(data.join("memory/index.md"), "它记的").unwrap();
+        std::fs::write(data.join("prompts/system.md"), "他改过的规矩").unwrap();
+        std::fs::write(data.join("sensors/census/shallow-dirs.txt"), "D:/私人").unwrap();
+        // 升级：随程序来的脚本和默认文件都变了
+        std::fs::write(sk.join("memory/index.md"), "新版的空索引").unwrap();
+        std::fs::write(sk.join("prompts/system.md"), "规矩二").unwrap();
+        std::fs::write(sk.join("sensors/census/census.ps1"), "脚本二").unwrap();
+        Root::bootstrap_from(&sk, &data).unwrap();
+        assert_eq!(std::fs::read_to_string(data.join("memory/index.md")).unwrap(), "它记的", "记忆不能被覆盖");
+        assert_eq!(std::fs::read_to_string(data.join("prompts/system.md")).unwrap(), "他改过的规矩");
+        assert_eq!(std::fs::read_to_string(data.join("sensors/census/shallow-dirs.txt")).unwrap(), "D:/私人", "私人目录的名单不能被覆盖");
+        assert_eq!(std::fs::read_to_string(data.join("sensors/census/census.ps1")).unwrap(), "脚本二", "程序的脚本要换成新的");
+        // 没有初始文件、数据目录也不成样子：报错，不硬来
+        assert!(Root::bootstrap_from(&d.path().join("nothing"), &d.path().join("empty")).is_err());
+        assert!(Root::bootstrap_from(&d.path().join("nothing"), &data).is_ok(), "初始文件没了但数据还在：照常用");
     }
 }

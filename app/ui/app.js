@@ -59,6 +59,7 @@
     var box = cat.summon(x, y, 'calm');
     box.ontap = function () { toggle(tray); tuck(); };
     box.addEventListener('pointerdown', function () { untuck(6000); });
+    ['pointercancel', 'lostpointercapture'].forEach(function (n) { cat.kitty().addEventListener(n, function () { setTimeout(drop, 0); }); });
     cat.kitty().addEventListener('pointerup', function (e) {
       if (!cat.kitty().classList.contains('held') && !me.wasHeld) return;
       var x = e.clientX, y = cat.kitty().getBoundingClientRect().bottom;      // 松手时它脚的位置
@@ -255,6 +256,7 @@
     if (show) { p.hidden = false; if (p === tray) fillTray(); if (p === talk) { openTalk(); } if (p === map) fillMap(); }
     layout();
   }
+  function drop() { var k = cat.kitty(); if (k.classList.contains('held')) k.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: curs ? curs.x : k.getBoundingClientRect().left, clientY: curs ? curs.y : 0 })); }
   function giveBack() { if (T) T.core.invoke('yield_focus'); }
   // 兜底：这一层只在你跟它说话的时候才该拿着键盘。别的时候发现键盘在它手里（启动时、别的窗口关掉时系统塞给它的），就还回去
   setInterval(function () { if (document.hasFocus() && talk.hidden && quick.hidden) giveBack(); }, 1500);
@@ -555,6 +557,8 @@
       .then(function () {
         T.event.listen('scene', function (e) { onScene(e.payload); });
         T.event.listen('outside', collapse);
+        // 后端说鼠标松开了，猫却还是被拎着的样子：松手的那一下丢了，替它补上
+        T.event.listen('released', function () { setTimeout(drop, 90); });
         T.event.listen('cursor', function (e) { curs = e.payload; });
         T.event.listen('handoff', function (e) { given([String(e.payload)]); });
         T.event.listen('tauri://drag-drop', function (e) { given((e.payload && e.payload.paths) || []); });

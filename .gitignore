@@ -6,6 +6,8 @@
 # 构建产物与依赖
 /target/
 **/target/
+# 打安装包时临时放进去的命令行程序
+app/src-tauri/binaries/
 node_modules/
 dist/
 

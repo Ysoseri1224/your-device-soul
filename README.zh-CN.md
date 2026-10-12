@@ -50,16 +50,13 @@ Your Device Soul 针对这三点：安装后它先把电脑清点一遍并存成
 
 需要 Windows 10 或 11、[PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows)，以及一个可用的 AI 模型（见下方"用哪个模型"）。
 
-从 [Releases](https://github.com/Ysoseri1224/your-device-soul/releases) 下载压缩包并解压，然后在解压目录里：
-
-```powershell
-.\ysoul-app.exe     # 启动。第一次会弹出设置窗口：称呼、哪些文件夹不许它看、用哪个模型
-.\ysoul.exe birth   # 只需执行一次，约十分钟：清点这台电脑，让它写下第一批笔记
-```
+1. 从 [Releases](https://github.com/Ysoseri1224/your-device-soul/releases/latest) 下载 `YourDeviceSoul-…-setup.exe`，双击安装。不需要管理员权限。
+2. 安装完成后会弹出设置窗口：填称呼、勾选不许它看的文件夹、选模型，点"就这样"。
+3. 窗口底部出现"最后一步"，点"开始"。它会用大约十分钟清点这台电脑，并写下第一批笔记。
 
 之后点一下屏幕右下角的箱子，选"聊聊"。
 
-程序没有数字签名，第一次运行时 Windows 会弹出安全提示。想自己编译的话，在 `runtime` 和 `app/src-tauri` 两个目录里各执行一次 `cargo build --release`。
+安装程序没有数字签名，Windows 会弹出安全提示，点"更多信息"再点"仍要运行"。它的笔记和设置存放在用户目录下的 `YourDeviceSoul` 文件夹，卸载程序不会删除它。想自己编译的话，见[指南第 4 节](docs/GUIDE.zh-CN.md#4-安装和第一次启动)。
 
 ## 各种情况下它的具体行为
 
@@ -100,7 +97,7 @@ Your Device Soul 针对这三点：安装后它先把电脑清点一遍并存成
 
 ## 你的数据
 
-- 操作记录、发给模型的每次请求的副本、截图、按时间记录的活动日志，都只存在本机的 `local` 文件夹。
+- 操作记录、发给模型的每次请求的副本、截图、按时间记录的活动日志，都只存在本机，在数据文件夹的 `local` 里。
 - 发给模型的内容在发送前会把密钥、邮箱、账号 ID 替换成占位符。
 - 不记录聊天软件和邮件客户端的窗口内容，不使用麦克风，不持续截屏。
 

@@ -8,6 +8,7 @@
   :root { --paper: #F4F0E6; --wash: #FFFDF8; --ink: #1F1D1A; --muted: #6A655C; --line: #DAD3C4; --clay: #C96A4B; --olive: #7F8E60;
     --serif: "Noto Serif SC", "Songti SC", "SimSun", serif; --sans: "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif; }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html { scrollbar-gutter: stable; }
   body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.7 var(--sans); }
   main { max-width: 760px; margin: 0 auto; padding-block: 26px 40px; padding-inline: 24px; display: flex; flex-direction: column; gap: 18px; }
@@ -64,16 +65,23 @@
     <div><button id="rescan" class="chips" style="font:inherit;font-size:14px;background:var(--wash);border:1.5px solid var(--ink);border-radius:8px;padding:2px 11px;cursor:pointer">重新找</button></div>
   </section>
 
+  <section id="birth" hidden>
+    <h2>最后一步：让它认识这台电脑</h2>
+    <p class="why">它会把这台电脑清点一遍（装了哪些软件、有哪些项目、开机启动了什么），存成清单，然后写下它的第一批笔记。上面列为私人的目录它不会进去看。大约十分钟，会打开一个终端窗口显示进度，期间你可以照常用电脑。只需要做这一次。</p>
+    <div><button id="born" style="font:inherit;font-size:16px;background:var(--clay);color:#fff;border:1.5px solid var(--ink);border-radius:8px;padding:6px 22px;cursor:pointer">开始</button> <span class="why" id="born-msg"></span></div>
+  </section>
+
   <footer>
     <button id="save">就这样</button>
     <span id="saved" hidden>存好了。它在桌面右下角的箱子里。</span>
   </footer>
+  <p class="why" id="home"></p>
 </main>
 <script>
 (function () {
   'use strict';
   var T = window.__TAURI__ || null, $ = function (id) { return document.getElementById(id); };
-  var strong = [], cheap = null, all = [];
+  var strong = [], cheap = null, all = [], born = true;
   function lines() { return $('private').value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean); }
   function drawSuggest(dirs) {
     var box = $('suggest'); box.textContent = '';
@@ -104,14 +112,25 @@
     T.core.invoke('setup_load').then(function (s) {
       $('owner').value = s.owner || ''; $('private').value = (s.private_dirs || []).join('\n'); drawSuggest(s.suggest || []);
       all = s.channels || []; strong = s.strong || []; cheap = s.cheap || null; drawChannels();
+      born = !!s.born; $('home').textContent = '它的记忆和设置存在：' + s.home;
     });
   }
   $('private').addEventListener('input', function () { Array.prototype.forEach.call($('suggest').children, function (b) { b.className = lines().indexOf(b.textContent) >= 0 ? 'on' : ''; }); });
   $('rescan').onclick = load;
   $('save').onclick = function () {
     var done = T ? T.core.invoke('setup_save', { owner: $('owner').value.trim(), privateDirs: lines(), strong: strong, cheap: cheap }) : Promise.resolve();
-    done.then(function () { $('saved').hidden = false; setTimeout(function () { if (T) T.window.getCurrentWindow().hide(); }, 1400); }, function (e) { $('saved').hidden = false; $('saved').textContent = '没存成：' + e; });
+    done.then(function () {
+      $('saved').hidden = false;
+      // 还没初始化过：存好之后不关窗口，把最后一步亮出来
+      if (!born) { $('saved').textContent = '存好了。还差最后一步，见上面。'; $('birth').hidden = false; $('birth').scrollIntoView({ behavior: 'smooth' }); }
+      else setTimeout(function () { if (T) T.window.getCurrentWindow().hide(); }, 1400);
+    }, function (e) { $('saved').hidden = false; $('saved').textContent = '没存成：' + e; });
   };
+  $('born').onclick = function () {
+    if (!T) { $('born-msg').textContent = '（预览里不会真的开始）'; return; }
+    T.core.invoke('birth_start').then(function () { born = true; $('born').disabled = true; $('born-msg').textContent = '已经在另一个窗口里开始了。做完之后点一下右下角的箱子，选"聊聊"。这一页可以关了。'; }, function (e) { $('born-msg').textContent = String(e); });
+  };
+  if (!T && /fresh/.test(location.hash)) { born = false; }
   load();
 })();
 </script>

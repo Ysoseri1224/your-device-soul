@@ -50,7 +50,7 @@ pub fn parse_completion(body: &str) -> Result<String> {
 
 /// 派一件跑腿的活。机主在通道里指定了跑腿用哪条，就用那条（不带工具，问一句答一句）；没指定就照旧走 cc-switch 里的 OpenRouter。
 pub fn errand(system: &str, user: &str, model: &str, max_tokens: u32) -> Result<String> {
-    if let Some(root) = crate::paths::Root::discover(None).ok() {
+    if let Some(root) = crate::paths::Root::locate(None).ok() {
         let choice = crate::channels::choice(&root);
         if choice.cheap.is_some() {
             if let Some(ch) = crate::channels::cheap_one(&crate::channels::discover(), &choice) {

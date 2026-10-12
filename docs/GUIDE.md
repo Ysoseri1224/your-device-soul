@@ -98,39 +98,32 @@ While running, ysoul covers the whole screen with a transparent window. The item
 
 **Channel.** ysoul contains no AI model; it calls one to think. A channel is one available way to do that — a logged-in Claude Code, an API you configured, a local Ollama. It finds the channels already on your computer and you decide which to use.
 
-**Birth.** A one-time initialisation command you run after installing (`ysoul birth`). It inventories the computer, then has ysoul read that inventory and write its first description of the computer and of itself. Until you run it, ysoul knows nothing about this machine.
+**Birth.** A one-time initialisation you start from the setup window after installing. It inventories the computer, then has ysoul read that inventory and write its first description of the computer and of itself. Until you run it, ysoul knows nothing about this machine.
 
 ## 4. Installing and first launch
 
 **Requirements:** Windows 10 or 11; PowerShell 7 (Windows ships with 5.1; install 7 separately); at least one working channel (section 9).
 
-**Getting it:** download the zip from the Releases page and unzip. There are two programs:
+**Installing:** download `YourDeviceSoul-…-setup.exe` from the [Releases page](https://github.com/Ysoseri1224/your-device-soul/releases/latest) and run it. It installs for the current user and does not need administrator rights. The installer is not code-signed, so Windows shows "Windows protected your PC"; click *More info*, then *Run anyway*.
 
-- `ysoul-app.exe` — the cat on your desktop.
-- `ysoul.exe` — the command-line tool that does the thinking, the permission checks and the actions. The cat calls it behind the scenes.
+After installing there are two things on disk:
 
-Or build it yourself (Rust and Node required):
+- The program, in `%LOCALAPPDATA%\Your Device Soul`. `ysoul-app.exe` is the cat on your desktop; `ysoul.exe` is the command-line tool that does the thinking, the permission checks and the actions. The cat calls it behind the scenes.
+- Its data, in a `YourDeviceSoul` folder in your user folder (for example `C:\Users\you\YourDeviceSoul`). Its notes, your settings and the record of every ticket are here. The `memory`, `local`, `prompts` and other folders mentioned later in this guide are inside it. Uninstalling or upgrading the program leaves this folder alone.
 
-```powershell
-cd runtime;          cargo build --release
-cd ..\app\src-tauri; cargo build --release
-```
-
-**Step 1: start the cat.** Double-click `ysoul-app.exe`. The first launch opens a setup window with three things to fill in:
+**Step 1: fill in the settings.** The program starts when the installer finishes and opens a setup window with three things to fill in:
 
 1. **Name** — what it should call you. Used only for addressing you.
 2. **Private folders** — the window lists the top-level folders on each drive; click one to add it, or type paths yourself, one per line.
 3. **Model** — the window lists the channels it found. Click the circle on the left to set the order (the first is used; if a call fails it moves to the next). The *Errands* button picks the channel for small jobs; choose a cheap one.
 
-Click *That's it* to save. To reopen it later, right-click the cat icon in the system tray and choose *Settings*.
+Click *That's it* (就这样) to save. To reopen it later, right-click the cat icon in the system tray and choose *Settings*.
 
-**Step 2: run "birth".** Open a terminal in the unzipped folder:
+**Step 2: initialise.** After saving, a last section appears at the bottom of the window ("最后一步：让它认识这台电脑"); click *Start* (开始). A terminal window opens and shows progress. It takes about ten minutes and you can keep using the computer. Fill in the private folders before this step, because the inventory uses them.
 
-```powershell
-.\ysoul.exe birth
-```
+Then click the crate in the bottom-right corner of the screen, choose *Chat* (聊聊), and start talking.
 
-This takes about ten minutes. Then click the crate, choose *Chat*, and start talking.
+**Building it yourself:** you need Rust. Run `cargo build --release` in both `runtime` and `app/src-tauri`, then start `app/src-tauri/target/release/ysoul-app.exe`. Run this way, the data lives in the repository folder, not in the data folder described above.
 
 **Step 3 (optional): add entry points to the system.**
 

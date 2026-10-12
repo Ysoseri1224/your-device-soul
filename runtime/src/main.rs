@@ -160,7 +160,7 @@ fn show_context(root: &Root, full: bool) -> Result<()> {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     ysoul::sense::dpi_aware();
-    let root = Root::discover(cli.root)?;
+    let root = Root::locate(cli.root)?;
     match cli.command {
         Cmd::Say { text } => {
             // 他在自己的话里写了路径，就是让它看那一件

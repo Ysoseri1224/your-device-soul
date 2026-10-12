@@ -10,21 +10,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build the core
         shell: pwsh
         run: |
           cargo build --release --manifest-path runtime/Cargo.toml
-          cargo build --release --manifest-path app/src-tauri/Cargo.toml
-      - name: Assemble
+          New-Item -ItemType Directory -Force app/src-tauri/binaries | Out-Null
+          Copy-Item runtime/target/release/ysoul.exe app/src-tauri/binaries/ysoul-x86_64-pc-windows-msvc.exe
+      - name: Build the installer
+        working-directory: app/src-tauri
+        shell: pwsh
+        run: npx --yes @tauri-apps/cli@2 build --config tauri.bundle.conf.json
+      - name: Name the installer
         shell: pwsh
         run: |
-          $d = 'your-device-soul'
-          New-Item -ItemType Directory $d | Out-Null
-          Copy-Item runtime/target/release/ysoul.exe, app/src-tauri/target/release/ysoul-app.exe $d
-          Copy-Item memory, seed, prompts, sensors, design, docs, tools, assets -Destination $d -Recurse
-          Copy-Item README.md, README.zh-CN.md, LICENSE $d
-          Compress-Archive $d "your-device-soul-${{ github.ref_name }}-windows-x64.zip"
+          $exe = Get-ChildItem app/src-tauri/target/release/bundle/nsis/*-setup.exe | Select-Object -First 1
+          Copy-Item $exe "YourDeviceSoul-${{ github.ref_name }}-setup.exe"
       - uses: softprops/action-gh-release@v2
         with:
-          files: your-device-soul-*.zip
+          files: YourDeviceSoul-*-setup.exe
           generate_release_notes: true

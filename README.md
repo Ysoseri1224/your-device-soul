@@ -50,16 +50,13 @@ For that reason it has no fixed list of features. What it can do depends on what
 
 You need Windows 10 or 11, [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows), and an AI model it can call (see "Which model" below).
 
-Download the zip from [Releases](https://github.com/Ysoseri1224/your-device-soul/releases), unzip it, and in that folder:
+1. Download `YourDeviceSoul-…-setup.exe` from [Releases](https://github.com/Ysoseri1224/your-device-soul/releases/latest) and run it. No administrator rights needed.
+2. A setup window opens when the installer finishes: enter what it should call you, pick the folders it must not read, choose a model, and click *That's it* (就这样).
+3. A last step appears at the bottom of the window; click *Start* (开始). It spends about ten minutes inventorying this computer and writing its first notes.
 
-```powershell
-.\ysoul-app.exe     # start it. The first launch opens a setup window: your name, folders it must not read, which model
-.\ysoul.exe birth   # run once, about ten minutes: inventories this computer and lets it write its first notes
-```
+Then click the crate in the bottom-right corner of the screen and choose *Chat* (聊聊).
 
-Then click the crate in the bottom-right corner of the screen and choose *Chat*.
-
-The binaries are not code-signed, so Windows shows a security prompt on first run. To build from source, run `cargo build --release` in both `runtime` and `app/src-tauri`.
+The installer is not code-signed, so Windows shows a security prompt; click *More info*, then *Run anyway*. Its notes and settings live in a `YourDeviceSoul` folder in your user folder, and uninstalling the program does not delete them. To build from source, see [section 4 of the guide](docs/GUIDE.md#4-installing-and-first-launch).
 
 ## What it does in each situation
 
@@ -100,7 +97,7 @@ Both the Anthropic and the OpenAI API formats are supported; most services speak
 
 ## Your data
 
-- The action log, a copy of every request sent to the model, screenshots and the timestamped activity log stay on your computer, in the `local` folder.
+- The action log, a copy of every request sent to the model, screenshots and the timestamped activity log stay on your computer, in the `local` folder inside the data folder.
 - Before a request is sent, keys, e-mail addresses and account IDs in it are replaced with placeholders.
 - It does not record the windows of chat or mail programs, does not use the microphone, and does not take screenshots continuously.
 

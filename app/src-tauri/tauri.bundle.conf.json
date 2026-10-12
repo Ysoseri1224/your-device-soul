@@ -1,0 +1,32 @@
+{
+  "productName": "Your Device Soul",
+  "mainBinaryName": "ysoul-app",
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "icon": [
+      "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/ysoul"
+    ],
+    "resources": {
+      "../../memory": "skeleton/memory",
+      "../../seed": "skeleton/seed",
+      "../../prompts": "skeleton/prompts",
+      "../../sensors": "skeleton/sensors",
+      "../../tools": "skeleton/tools"
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": [
+          "SimpChinese",
+          "English"
+        ]
+      }
+    }
+  }
+}
