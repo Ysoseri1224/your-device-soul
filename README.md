@@ -33,6 +33,24 @@ On screen it is a black cat that sits on the window you are using and rarely spe
 
 <sub>Left: an action it wants to take is listed as a "ticket" and waits for you to click <i>Do</i>. Right: marks it leaves on screen — a note clipped to a window, a circled spot, a comment beside a piece of text. Both images are UI previews, not a real desktop.</sub>
 
+## What using it is like
+
+A few concrete moments. They have one thing in common: you do not brief it first, and you do not carry out the steps yourself.
+
+**You sit down in the morning and can't remember where you stopped.** Press the shortcut and ask "where did I leave off yesterday?". It checks yesterday's record and answers along the lines of: "You were in my-project all afternoon, last in form.ts; two tests were still failing." It noted that in the background yesterday. You never told it.
+
+**An error you don't understand appears on screen.** Ask "what is this error?". It looks at your current window and explains. If the fix is a setting, it writes the change out as a confirmation slip; you approve, it makes the change, and you can undo it if it turns out wrong.
+
+**The computer takes longer and longer to start.** Say "see what runs at startup and turn off what I don't need". It lists the startup items, tells you what each one is, and puts the ones it suggests disabling in front of you one by one. It is looking at what is actually on this computer, not reciting a general tutorial.
+
+**You are writing a document and want a second pair of eyes.** Select a passage and say "have a look at this". It reads the selection and writes its comments next to the sentences they are about, so you are not going back and forth between a chat window and the document.
+
+**There is a repetitive chore.** Say "sort the screenshots in Downloads into D:\pics by month". It lists which files it would move and where; once you agree, it does it.
+
+**Something is better done by another tool.** Say "have Claude Code fix the typos in this project". It passes that sentence on to the tool, to run in the project you named — and shows you first, as with everything else.
+
+In short, it is for two kinds of things. Questions about this computer and about what you have been doing lately, which it already keeps track of. And operations on the computer: you say what result you want, it does the work, and it asks before changing anything.
+
 ## Getting started
 
 You need Windows 10 or 11, [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows), and an AI model it can call (see "Which model" below).
@@ -48,7 +66,9 @@ Then click the crate in the bottom-right corner of the screen and choose *Chat*.
 
 The binaries are not code-signed, so Windows shows a security prompt on first run. To build from source, run `cargo build --release` in both `runtime` and `app/src-tauri`.
 
-## What it does
+## What it does in each situation
+
+Those were examples. This table lists what it actually does, case by case.
 
 | Situation | What happens |
 |---|---|
