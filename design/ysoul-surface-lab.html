@@ -1,0 +1,882 @@
+<meta charset="utf-8">
+<title>ysoul 操作面样稿</title>
+<style>
+/* 注意：猫的皮肤会往页面里注入它自己的样式，其中有 note、win、desk、thumb、off、thin 这些类名。
+   这一页自己的类名不能和它们重名，否则会被皮肤里的动画带着转。 */
+:root{
+  --paper:#F4F0E6; --wash:#FFFDF8; --ink:#1F1D1A; --muted:#6A655C; --line:#DAD3C4;
+  --clay:#C96A4B; --olive:#7F8E60; --sky:#8DAEC8; --ochre:#D8A440; --heather:#B5A2C8;
+  --cat:#1F1D1A; --white:#FFFDF6; --ground:#C9D3CF; --glass:#EEF1EC;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","Microsoft YaHei UI","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"Cascadia Mono","Consolas",ui-monospace,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{overflow-y:scroll;scrollbar-gutter:stable}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:22px 48px;display:flex;flex-direction:column;gap:16px}
+h1{font-family:var(--serif);font-size:24px;margin:0;text-wrap:balance}
+h2{font-family:var(--serif);font-size:17px;margin:0 0 6px}
+.lead{margin:0;color:var(--muted);max-width:68ch}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs button,.ctl button{font:inherit;color:var(--ink);background:var(--wash);border:1.5px solid var(--ink);border-radius:999px;padding:5px 14px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--wash)}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;min-height:4.2em}
+.ctl .next{background:var(--clay);color:var(--white);border-color:var(--ink);box-shadow:2px 2px 0 var(--ink)}
+.ctl .next:disabled{opacity:.45;cursor:default;box-shadow:none}
+.step{flex:1;min-width:220px;margin:0;font-family:var(--serif);font-size:16px}
+.step small{display:block;font-family:var(--sans);font-size:13px;color:var(--muted)}
+
+/* ── 假桌面 ── */
+.dsk{position:relative;width:100%;aspect-ratio:16/10;background:var(--ground);border:1.5px solid var(--ink);border-radius:10px;overflow:hidden;container-type:inline-size}
+.dsk>*{font-size:clamp(6.5px,1.3cqw,14.5px)}
+.bar{position:absolute;left:0;right:0;bottom:0;height:5%;background:var(--glass);border-top:1px solid var(--line);display:flex;align-items:center;gap:1em;padding:0 1.2em;color:var(--muted)}
+.bar i{width:1.5em;height:1.5em;border-radius:.3em;background:var(--line);display:block}
+.wnd{position:absolute;background:var(--wash);border:1.5px solid var(--ink);border-radius:.6em;box-shadow:.25em .25em 0 rgba(31,29,26,.25);display:flex;flex-direction:column}
+.wnd>header{display:flex;align-items:center;gap:.6em;padding:.35em .8em;border-bottom:1.5px solid var(--ink);background:var(--glass);font-size:.92em;border-radius:.5em .5em 0 0}
+.wnd>header b{font-weight:600}
+.wnd>header span{margin-left:auto;letter-spacing:.5em;color:var(--muted)}
+.wnd .body{flex:1;padding:.8em 1em;overflow:hidden;position:relative;border-radius:0 0 .5em .5em}
+.term .body{background:#24211d;color:#e9e3d6;font-family:var(--mono);white-space:pre-wrap;line-height:1.6}
+.term .dim{color:#9c9484}.term .hi{color:#e6b866}
+.files{list-style:none;margin:0;padding:0;display:grid;gap:.2em}
+.files li{display:flex;gap:.8em;align-items:center;padding:.25em .5em;border-radius:.3em;border:1px solid transparent}
+.files li[draggable=true]{cursor:grab;border-color:var(--line);background:var(--white)}
+.files li em{margin-left:auto;font-style:normal;color:var(--muted)}
+.files li.ring{outline:.2em solid var(--clay);outline-offset:.1em;background:#fbe9e2}
+.files li.gone{text-decoration:line-through;color:var(--muted)}
+.page h3{font-family:var(--serif);margin:.1em 0 .4em;font-size:1.35em}
+.page p{margin:.35em 0;color:var(--muted)}
+.page .thm{height:5em;border-radius:.4em;background:repeating-linear-gradient(135deg,var(--line) 0 .6em,var(--glass) .6em 1.2em);margin:.5em 0}
+.md{font-family:var(--serif);line-height:1.9}
+.md h3{margin:0 0 .3em;font-size:1.25em}
+.md p{margin:.3em 0}
+.wavy{text-decoration:underline wavy var(--clay);text-underline-offset:.25em;cursor:help}
+.flash{background:#f6dfa6;transition:background 1.6s}
+.code{font-family:var(--mono);line-height:1.7;white-space:pre}
+.code mark{background:#f6dfa6;color:inherit;padding:.1em 0}
+
+/* ── 箱子 ── */
+.box{position:absolute;width:13cqw;z-index:20;cursor:grab;touch-action:none;outline:none}
+.box svg{width:100%;height:auto;display:block;overflow:visible}
+.box.drop svg{filter:drop-shadow(0 0 .5em var(--clay))}
+.box .count{position:absolute;right:16%;bottom:12%;min-width:1.7em;height:1.7em;border-radius:1em;background:var(--clay);color:var(--white);border:1.5px solid var(--ink);display:grid;place-items:center;font-size:.85em;font-weight:600}
+/* 猫出去了：箱子敞着，里面是空的 */
+svg.empty .o-joy{display:none!important}
+svg.empty .lid{animation:none!important;transform:rotate(62deg)!important}
+
+/* ── 箱子外面的猫：姿态和位置都由脚本里的骨架逐帧算，这里只管几样小东西的显隐 ── */
+.kitty{position:absolute;width:9.8cqw;z-index:25;cursor:grab;touch-action:none}
+.kitty.gone{display:none}
+.kitty.away{visibility:hidden}
+.wnd>header,.bar{cursor:pointer}
+.kitty.held{cursor:grabbing;z-index:40}
+.kitty svg{width:100%;height:auto;display:block;overflow:visible}
+.kq-card,.kq-shut{opacity:0;transition:opacity .16s}
+.kitty[data-s=ask] .kq-card{opacity:1}
+.kitty.shut .kq-shut{opacity:1}
+.kq-ball,.kq-es{opacity:0;transition:opacity .2s}
+.kitty[data-s=work] .kq-ball{opacity:1}
+.kq-es{transform-box:fill-box;transform-origin:center}
+.kitty.turn svg{transform-origin:50% 88%;animation:kqturn .34s ease-in-out}
+@keyframes kqturn{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.28)}}
+.kitty[data-s=joy] .kq-es{opacity:1;animation:kqtw .55s ease-in-out infinite alternate}
+@keyframes kqtw{from{scale:.65;rotate:0deg}to{scale:1.1;rotate:25deg}}
+.kitty[data-s=loaf] .lidE,.kitty[data-s=no] .lidE,.kitty[data-s=work] .lidE,.kitty[data-s=held] .lidE,.kitty[data-s=joy] .lidE{animation:none}
+/* 杯子：桌面上的一个独立物件，由脚本按刚体来算 */
+.cupx{position:absolute;z-index:24;background:var(--sky);border:.14em solid var(--ink);border-radius:.2em;pointer-events:none;box-sizing:border-box}
+.bar i.lit{background:var(--clay)}
+
+/* ── 猫和箱子以外的组件 ── */
+.pop{position:absolute;z-index:30;background:var(--paper);border:1.5px solid var(--ink);border-radius:.8em;box-shadow:.22em .22em 0 var(--ink);padding:.6em .85em;max-width:24em;animation:in .28s cubic-bezier(.3,1.5,.5,1)}
+@keyframes in{from{opacity:0;transform:translateY(.6em) scale(.94)}to{opacity:1;transform:none}}
+.pop.wide{max-width:none}
+.pop.aside{font-family:var(--serif);border-style:dashed;box-shadow:none;background:rgba(255,253,248,.92)}
+.pop.chat{font-family:var(--serif);border-radius:1.2em 1.2em .2em 1.2em;background:var(--wash);box-shadow:none;border-width:1.5px;padding:.45em .9em}
+.pop.margin{background:#fff8dc;border-radius:.2em;box-shadow:.15em .15em 0 rgba(31,29,26,.3);border-width:1px;font-family:var(--serif);max-width:19em}
+.pop.margin del{color:var(--muted)} .pop.margin ins{text-decoration:none;background:#e3ecd2}
+.pop.fade{opacity:0;transition:opacity 1.6s}
+.pop.fly{transition:left .6s ease-in,top .6s ease-in,transform .6s ease-in,opacity .6s;transform:scale(.15);opacity:.2}
+.pop h4{margin:0 0 .3em;font-family:var(--serif);font-size:1.08em}
+.pop dl{margin:.2em 0;display:grid;grid-template-columns:auto 1fr;gap:.15em .8em}
+.pop dt{color:var(--muted);white-space:nowrap}.pop dd{margin:0}
+.acts{display:flex;flex-wrap:wrap;gap:.45em;margin-top:.55em}
+.dsk button{font:inherit;font-size:.95em;background:var(--wash);border:1.5px solid var(--ink);border-radius:.5em;padding:.15em .7em;cursor:pointer;color:var(--ink)}
+.dsk button.go{background:var(--clay);color:var(--white)}
+.dots{letter-spacing:.3em;color:var(--clay)}
+.pop.line{padding:.35em .6em;display:flex;gap:.5em;align-items:center;min-width:17em}
+.pop.line input{flex:1;font:inherit;border:0;outline:0;background:transparent;color:var(--ink)}
+kbd,.k{font-family:var(--mono);font-size:.85em;border:1px solid var(--ink);border-radius:.3em;padding:0 .35em;background:var(--wash)}
+.radial{position:absolute;z-index:30;display:grid;grid-template-columns:1fr 1fr;gap:.4em;animation:in .25s}
+.radial button{border-radius:999px;padding:.25em .9em;box-shadow:.15em .15em 0 var(--ink);white-space:nowrap;background:var(--paper)}
+.tray{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6em;width:32em;max-width:60cqw}
+.tray section{border:1px solid var(--line);border-radius:.5em;padding:.4em .6em;background:var(--wash)}
+.tray h5{margin:0 0 .2em;font-size:.95em}
+.tray ul{margin:0;padding-left:1.1em;color:var(--muted)}
+.tray .foot{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.45em}
+.ringbox{position:absolute;z-index:15;border:.22em solid var(--clay);border-radius:.6em;pointer-events:none;animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 .5em rgba(201,106,75,.22)}}
+/* 夹在窗口上的条 */
+.tag{position:absolute;right:6%;top:-1.1em;z-index:12;background:#fff8dc;border:1px solid var(--ink);padding:.5em .8em .55em;max-width:21em;box-shadow:.15em .15em 0 rgba(31,29,26,.3);rotate:1.2deg;animation:in .3s}
+.tag::before{content:"";position:absolute;left:1.2em;top:-.45em;width:.9em;height:1.5em;border:.16em solid var(--ink);border-bottom:0;border-radius:.5em .5em 0 0;background:transparent}
+/* 爪印 */
+.paw{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;color:var(--clay)}
+/* 此刻条 */
+.strip{position:absolute;z-index:19;background:var(--wash);border:1px solid var(--ink);border-radius:999px;padding:.1em .8em;white-space:nowrap;cursor:pointer;font-size:.92em}
+.strip b{font-weight:600}
+/* 今天的带子 */
+.ribbon{position:absolute;left:4%;right:4%;bottom:7.5%;z-index:28;background:var(--paper);border:1.5px solid var(--ink);border-radius:.6em;padding:.5em .7em .6em;animation:in .3s}
+.ribbon .track{display:flex;gap:.15em;height:2.3em;margin-top:.3em}
+.ribbon .seg{position:relative;border:1px solid var(--ink);border-radius:.3em;padding:0 .4em;overflow:hidden;white-space:nowrap;display:flex;align-items:center;gap:.3em;font-size:.88em}
+.ribbon .seg i{font-style:normal;color:var(--muted)}
+.ribbon .hush{width:.5em;height:.5em;border-radius:50%;background:var(--ink);flex:none}
+.ribbon .away{background:repeating-linear-gradient(135deg,transparent 0 .4em,var(--line) .4em .8em);border-style:dashed}
+.ribbon .key{display:flex;flex-wrap:wrap;gap:1.2em;color:var(--muted);font-size:.88em;margin-top:.45em;align-items:center}
+/* 家的地图 */
+.hmap{width:100%;border-collapse:collapse}
+.hmap th,.hmap td{text-align:left;padding:.28em .5em;border-bottom:1px solid var(--line);white-space:nowrap}
+.hmap th{font-weight:600;color:var(--muted);font-size:.9em}
+.hmap .y{color:var(--olive);font-weight:600}.hmap .n{color:var(--line)}
+.hmap .src{color:var(--muted);font-size:.9em}
+.hmap tr.lit td{background:#f6dfa6;transition:background 2s}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.card{background:var(--wash);border:1.5px solid var(--ink);border-radius:10px;padding:12px 16px;min-width:0}
+.card ul{margin:0;padding-left:1.2em}
+.card li{margin:.15em 0}
+.card li b{font-weight:600}
+.fnote{color:var(--muted);font-size:13.5px;margin:0;max-width:72ch}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>ysoul 操作面样稿 <small style="font-size:14px;font-family:var(--sans);color:var(--muted)">第十一版 · 十个场景</small></h1>
+    <p class="lead">它不住在一个聊天框里。箱子是它的窝，你可以拖；猫是自由的，它自己走来走去，你也可以把它拎起来放到别处。猫出了箱子有它自己的一套状态。除了猫和箱子，桌面上还有另外几样属于它的东西。桌面和窗口都是画的。</p>
+  </header>
+
+  <div class="tabs" id="tabs" role="tablist" aria-label="场景"></div>
+  <div class="ctl">
+    <p class="step" id="step" aria-live="polite"></p>
+    <button class="next" id="next">下一步</button>
+    <button id="again">重来</button>
+  </div>
+
+  <div class="dsk" id="dsk" aria-label="假桌面">
+    <div class="bar"><i></i><i></i><i></i><i></i><span>15:42</span></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>你能对它做的</h2>
+      <ul>
+        <li><b>拎猫</b>：把它拖起来，放到哪个窗口上它就待在哪。</li>
+        <li><b>拖箱子</b>：把它的窝挪到你顺手的地方。</li>
+        <li><b>摸一下、赶开</b>：这类话多说，或者现在别烦。</li>
+        <li><b>拖给它</b>：把东西拖进箱子。</li>
+        <li><b>说一句</b>：快捷键叫出一行字，说完就收。</li>
+        <li><b>指着问</b>：选中一段字、一个文件，再叫它。</li>
+        <li><b>接话</b>：它说闲话时，你可以接，也可以不理。</li>
+        <li><b>点记号</b>：条、爪印、带子上的每一段都能点。</li>
+        <li><b>右键交给它、终端里叫</b>：资源管理器和命令行里都有入口。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>猫的两套状态</h2>
+      <ul>
+        <li><b>在箱子里</b>：看、想、举纸、举牌、推杯子、炸毛、睡、关着盖。就是现在已有的那一套。</li>
+        <li><b>在箱子外</b>：坐着（正对你）、走、小跑、蜷着睡、干活、想、举牌、不同意、炸毛、高兴、出错、被拎着，外加转身、蹲、腾空三个过渡用的。第一个场景可以逐个看。</li>
+        <li><b>它在哪</b>本身就是信息：蹲在哪个窗口上，关心的就是哪个窗口。</li>
+        <li><b>箱子</b>：数字是里面攒着没给你的东西；打开是没说的话、等你点头的、惦记的、刚做过的。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>猫和箱子以外的</h2>
+      <ul>
+        <li><b>闲话气泡</b>：圆角的，自己淡掉。打趣和搭话都用它。</li>
+        <li><b>页边批注</b>：它手里有具体改法时，贴在那句话旁边。</li>
+        <li><b>夹在窗口上的条</b>：关于这个地方的事。你不理，它就一直夹着，不催。</li>
+        <li><b>一张票</b>：它要动手时，写明做什么、在哪、怎么撤。</li>
+        <li><b>爪印</b>：它动过的东西上留一个，点开能看它做了什么、能撤回。</li>
+        <li><b>圈</b>：它指给你看的地方。</li>
+        <li><b>一行字</b>：你叫它时出现在光标旁。</li>
+        <li><b>此刻条</b>：它认为你现在在干什么。说错了你点它改。</li>
+        <li><b>今天的带子</b>：它记下的一段段经历。</li>
+        <li><b>家的地图</b>：每个地方它能做什么，你一眼能看、能改。</li>
+      </ul>
+    </div>
+  </div>
+  <p class="fnote">聊天还在，但只是箱子里的一个入口，用来真的聊天。样稿里的话和数字是编的。箱子外面那只猫是一副骨架逐帧算出来的：身子、腿、尾巴都有粗细变化，后腿是三节的；头还是原来那个头，没有添新的外貌细节。</p>
+</div>
+
+<div id="defs" style="position:absolute;width:0;height:0;overflow:hidden"></div>
+<script>
+function ysoulBoot(){
+  'use strict';
+  window.addEventListener('error', function (e) { document.body.setAttribute('data-err', (document.body.getAttribute('data-err') || '') + ' | ' + e.message + ' @' + e.lineno); });
+  var SKIN = window.YSOUL_SKIN, NS = 'http://www.w3.org/2000/svg';
+  var dsk = document.getElementById('dsk'), stepEl = document.getElementById('step');
+  var nextBtn = document.getElementById('next'), tabs = document.getElementById('tabs');
+  var style = document.createElement('style'); style.textContent = SKIN.css; document.head.appendChild(style);
+  document.getElementById('defs').innerHTML = SKIN.defs;
+
+  var box = null, kitty = null, out = false, timers = [], cur = 0, at = 0, roam = null;
+  var SLOT = { no: 'cross', ask: 'ring' };
+  var PAW = '<svg class="paw" viewBox="0 0 20 20" aria-label="爪印"><g fill="currentColor"><ellipse cx="10" cy="13" rx="4.6" ry="3.8"/><circle cx="4.2" cy="8.2" r="2"/><circle cx="8" cy="5" r="2"/><circle cx="12.4" cy="5" r="2"/><circle cx="16" cy="8.2" r="2"/></g></svg>';
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function put(e, x, y, w, h) { e.style.left = x + '%'; e.style.top = y + '%'; if (w) e.style.width = w + '%'; if (h) e.style.height = h + '%'; dsk.appendChild(e); return e; }
+  function later(ms, fn) { timers.push(setTimeout(fn, ms)); }
+  function clear() { timers.forEach(clearTimeout); timers = []; clearInterval(roam); roam = null; Array.prototype.slice.call(dsk.children).forEach(function (c) { if (!c.classList.contains('bar')) c.remove(); }); box = kitty = null; out = false; }
+  function rel(e) { var a = e.getBoundingClientRect(), d = dsk.getBoundingClientRect(); return { x: (a.left - d.left) / d.width * 100, y: (a.top - d.top) / d.height * 100, w: a.width / d.width * 100, h: a.height / d.height * 100 }; }
+
+  // ── 箱子 ──
+  function art(state, cls) {
+    var svg = el('div', '', SKIN.cat).querySelector('svg');
+    svg.setAttribute('class', 's-' + state + (cls ? ' ' + cls : '')); svg.setAttribute('viewBox', '14 24 180 152'); svg.setAttribute('role', 'img');
+    Array.prototype.forEach.call(svg.querySelectorAll('[data-slot]'), function (s) {
+      var kind = s.getAttribute('data-fixed') || SLOT[state]; if (!kind) return;
+      var use = document.createElementNS(NS, 'use'); use.setAttribute('href', '#pic-' + kind); s.appendChild(use);
+    });
+    return svg;
+  }
+  function pose(state) { var badge = box.querySelector('.count'); box.textContent = ''; box.appendChild(out ? art('joy', 'empty') : art(state || 'calm')); if (badge) box.appendChild(badge); }
+  function count(n) { var b = box.querySelector('.count'); if (!n) { if (b) b.remove(); return; } if (!b) { b = el('span', 'count'); box.appendChild(b); } b.textContent = n; }
+  // ── 拖动 ──
+  function grab(node, opts) {
+    var g = null;
+    node.addEventListener('pointerdown', function (e) { var r = rel(node), d = dsk.getBoundingClientRect(); g = { dx: e.clientX - d.left - r.x / 100 * d.width, dy: e.clientY - d.top - r.y / 100 * d.height, moved: false }; node.setPointerCapture(e.pointerId); e.preventDefault(); });
+    node.addEventListener('pointermove', function (e) {
+      if (!g) return; var d = dsk.getBoundingClientRect();
+      if (!g.moved) { g.moved = true; if (opts.start) opts.start(); }
+      var px = (e.clientX - d.left) / d.width * 100, py = (e.clientY - d.top) / d.height * 100;
+      if (opts.drag) { opts.drag(px, py); return; }
+      var a = node.getBoundingClientRect();
+      node.style.left = Math.max(-4, Math.min(100 - a.width / d.width * 60, px - g.dx / d.width * 100)) + '%';
+      node.style.top = Math.max(-6, Math.min(88, py - g.dy / d.height * 100)) + '%';
+    });
+    node.addEventListener('pointerup', function () { var m = g && g.moved; g = null; if (m) { if (opts.end) opts.end(); } else if (opts.tap) opts.tap(); });
+  }
+  function summon(x, y, state) {
+    box = el('div', 'box'); box.tabIndex = 0; box.setAttribute('aria-label', 'ysoul 的箱子，可以拖动'); put(box, x, y); pose(state);
+    grab(box, { tap: function () { if (box.ontap) box.ontap(); }, end: function () { if (box.onmoved) box.onmoved(); } });
+    kitty = el('div', 'kitty gone', KIT); dsk.appendChild(kitty); cup = el('div', 'cupx'); cup.hidden = true; dsk.appendChild(cup); rigInit();
+    dsk.onclick = function (e) { if (!rig || kitty.classList.contains('held') || e.target.closest('button,.pop,.kitty,.box,.tag')) return; var d = dsk.getBoundingClientRect(), px = (e.clientX - d.left) / d.width * 100, h = e.target.closest('.wnd > header'), b = e.target.closest('.bar');
+      if (h) { var r = rel(h.parentNode); if (r.y > 6) travel(px, r.y + .5, 'sit'); } else if (b) travel(px, FLOOR, 'sit'); };
+    grab(kitty, {
+      start: function () { rig.move = null; rig.queue = []; rig.turning = false; kitty.classList.add('held'); rig.phi = 0; rig.om = 0; rig.psi = 0; rig.pom = 0; rig.pvx = 0; rig.hx = rig.fx; rig.hy = rig.gy - 132 * UY; be('held', 220); },
+      // 指针捏着的是后颈。后颈在哪，猫就从哪儿挂下来
+      drag: function (px, py) { rig.hx = Math.max(2, Math.min(98, px)); rig.hy = Math.max(4, Math.min(92, py)); },
+      end: function () { kitty.classList.remove('held'); settle(); },
+      tap: function () { if (!idle()) return; be('joy', 260); later(2600, function () { if (rig.name === 'joy') be('sit', 460); }); }
+    });
+    return box;
+  }
+
+  // ════ 箱子外面的猫 ════
+  // 一副照着真猫结构搭的骨架，比例是卡通的。
+  //   身子：肩 S、腰 M、胯 H 三点定出脊背；背和腹的厚度不一样：胸深、腹线往后收、肩上微隆、臀圆。
+  //   前腿：上臂和肘藏在胸的轮廓里，露在外面的是从胸下到地面的一根直柱子，迈步时像钟摆一样摆，只有离地时腕才弯。
+  //   后腿：大腿、小腿、脚掌三节。膝朝前，跗关节朝后且离地很高，脚掌很长，只有脚尖着地。
+  //   头：侧着时是侧脸，正对你时是定过的那张正脸。
+  // 每个姿态是一组数。换姿态时所有的数一起从旧值滑到新值，所以任意两个姿态之间都有连续的过渡帧。
+  // 坐标：地面是 y=0，往上为负，侧身时脸朝右。fz：身子正对你的程度；face：脸正对你的程度。
+  var VB = [-125, -190, 250, 215], KW = 9.8, KH = KW * VB[3] / VB[2] * 1.6, UX = KW / VB[2], UY = KH / VB[3];
+  var LT = 22, LS = 25, LM = 24, G = 330, FLOOR = 95;   // FLOOR：任务栏上沿在屏幕高度的百分之几。样稿里是 95，真桌面上由程序量出来
+  var _unused_ = 0;   // 大腿、小腿、脚掌的长度；重力（桌面高度的百分比每秒方），猫、杯子、下落都用这一个
+  var eyeSvg = function (cx, cy, r, clip) { return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="var(--white)"/><g class="pupil"><circle cx="' + cx + '" cy="' + cy + '" r="' + (r * .72).toFixed(2) + '" fill="var(--ochre)"/><circle cx="' + cx + '" cy="' + cy + '" r="' + (r * .42).toFixed(2) + '" fill="var(--cat)"/><circle cx="' + (cx + r * .26).toFixed(2) + '" cy="' + (cy - r * .26).toFixed(2) + '" r="' + (r * .17).toFixed(2) + '" fill="var(--white)"/></g><g clip-path="url(#' + clip + ')"><rect class="lidE" x="' + (cx - r - 2) + '" y="' + (cy - r) + '" width="' + (2 * r + 4) + '" height="' + (2 * r + 4) + '" fill="var(--cat)"/></g>'; };
+  var HEADF = '<g transform="scale(.82)"><path d="M-17 -31 L-40 -56 Q-47 -30.5 -46 -9 C-49 19.2 -26.68 38 0 38 C26.68 38 49 19.2 46 -9 Q47 -30.5 40 -56 L17 -31 Q0 -28.5 -17 -31 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/><path d="M-35.5 -41 L-25 -30 L-39 -18 Z" fill="var(--clay)"/><path d="M35.5 -41 L25 -30 L39 -18 Z" fill="var(--clay)"/>' +
+    eyeSvg(-19.5, 2, 12.5, 'eyeL') + eyeSvg(19.5, 2, 12.5, 'eyeR') + '<path class="kq-es" transform="translate(-19.5 2)" d="M0 -11 Q0 0 11 0 Q0 0 0 11 Q0 0 -11 0 Q0 0 0 -11 Z" fill="var(--white)"/><path class="kq-es" transform="translate(19.5 2)" d="M0 -11 Q0 0 11 0 Q0 0 0 11 Q0 0 -11 0 Q0 0 0 -11 Z" fill="var(--white)"/>' +
+    '<path class="kq-shut" d="M-26 3 q6.5 5 13 0 M13 3 q6.5 5 13 0" fill="none" stroke="var(--ochre)" stroke-width="2.6" stroke-linecap="round"/></g>';
+  var HEADS = '<path d="M9 -29 L20 -54 L30 -20 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="4" stroke-linejoin="round"/>' +
+    '<path d="M-31 3 C-33 -19 -16 -34 5 -33 C19 -32 29 -22 32 -8 L39 3 C39 11 31 18 22 21 C8 27 -11 27 -23 20 C-28 16 -31 10 -31 3 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="4" stroke-linejoin="round"/>' +
+    '<path d="M-14 -27 L-7 -59 L15 -30 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="4" stroke-linejoin="round"/><path d="M-8 -31 L-5 -50 L8 -32 Z" fill="var(--clay)"/>' +
+    eyeSvg(15, -6, 10.5, 'kqeye') + '<path class="kq-shut" d="M8 -5 q7 5 14 0" fill="none" stroke="var(--ochre)" stroke-width="2.6" stroke-linecap="round"/>';
+  var SEAM = 'fill="none" stroke="var(--paper)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#kqclip)"';
+  var BANG = '<g class="kq-bang" fill="var(--clay)"><rect x="-3.2" y="-22" width="6.4" height="14" rx="3.2"/><circle cy="-2" r="3.5"/></g>';
+  var KIT = '<svg viewBox="' + VB.join(' ') + '" role="img" aria-label="ysoul"><defs><clipPath id="kqclip"><path class="kq-clip"/></clipPath><clipPath id="kqeye"><circle cx="15" cy="-6" r="10.5"/></clipPath></defs><g class="kq-all">' +
+    '<path class="kq-tail" fill="var(--cat)"/>' +
+    '<g class="kq-far"><path class="kq-hl"/><ellipse class="kq-phl"/><path class="kq-fl"/><ellipse class="kq-pfl"/></g>' +
+    '<path class="kq-body" fill="var(--cat)"/><path class="kq-scruff" fill="var(--cat)"/><path class="kq-neck" fill="var(--cat)"/>' +
+    '<g fill="var(--cat)"><path class="kq-hr"/><ellipse class="kq-phr"/><path class="kq-fr"/><ellipse class="kq-pfr"/></g>' +
+    '<path class="kq-seam" ' + SEAM + '/><path class="kq-seam2" ' + SEAM + '/>' +
+    '<g class="kq-ball"><g transform="scale(1.35)"><circle r="8.5" fill="var(--clay)"/><path d="M-6 -3 Q0 -8 6 -3 M-7.5 2 Q0 -3 7.5 2 M-4 6.5 Q1 2 6 5" fill="none" stroke="var(--ink)" stroke-width="1.2" stroke-linecap="round" opacity=".5"/></g></g>' +
+    '<g class="kq-head"><g class="kq-hs">' + HEADS + '</g><g class="kq-hf">' + HEADF + '</g></g>' +
+    '<g class="kq-card"><rect x="-19" y="-19" width="38" height="38" rx="4" fill="var(--wash)" stroke="var(--ink)" stroke-width="3" transform="rotate(8)"/><circle r="9.5" fill="none" stroke="var(--clay)" stroke-width="5"/></g>' +
+    BANG + BANG + BANG + Array(6).join('<path class="kq-star" d="M0 -6.5 Q0 0 6.5 0 Q0 0 0 6.5 Q0 0 -6.5 0 Q0 0 0 -6.5 Z" fill="var(--ochre)"/>') + '</g></svg>';
+
+  // 站着（侧面）是底子，其余姿态只写和它不同的地方。
+  // fr fl：右、左前脚尖的落点；hr hl：后脚尖的落点（侧面时"右"是靠你这边的）。lean：两只后脚掌各自往后斜多少度（0 是竖直踮着，90 是平放在地上）。
+  // pf：两只前爪离地时往下耷拉的角度。tuck：侧面轮廓里"胸深腹收"的程度。t、tr：尾巴曲线和尾根。
+  var KP = {
+    stand: { S: [26, -64], M: [-4, -67], H: [-34, -62], rs: 20, rm: 20.5, rh: 21, tuck: 1, C: [54, -80], ha: 0, face: 0, fz: 0, fo: 0, ho: 0,
+      fr: [31, 0], fl: [24, 0], hr: [-31, 0], hl: [-40, 0], pf: [0, 0], lean: [14, 14],
+      tr: [-18, -9], t: [-68, -78, -90, -104, -70, -128], tw: [6.2, 3.2], lid: -30, gx: 0, gy: 0, ps: 1, fur: 0, hx: 0, sm: 1, ball: [0, 0] },
+    // 正面站着：只在转身时路过
+    front: { S: [0, -64], M: [0, -64], H: [0, -62], rs: 24, rm: 24, rh: 25, tuck: 0, C: [0, -100], face: 1, fz: 1, fo: 10, ho: 13, fr: [10, 0], fl: [-10, 0], hr: [15, 0], hl: [-15, 0], tr: [6, -16], t: [22, -84, 30, -124, 14, -146] },
+    // 坐着：正对你。身子上窄下宽像个钟，两条前腿并着立在身前；后腿收在身子两侧，只露出脚尖；尾巴从身后绕到一侧
+    sit: { S: [0, -66], M: [0, -46], H: [0, -30], rs: 21, rm: 29, rh: 33, tuck: 0, C: [0, -104], face: 1, fz: 1, fo: 9, ho: 0, fr: [9, 0], fl: [-9, 0], hr: [25, 0], hl: [-25, 0], lean: [80, 80], tr: [24, 22], t: [58, 0, 66, -32, 44, -42] },
+    // 蜷着睡：身子横过来拱成一团，脸朝你搁在身前，尾巴绕到脸下面
+    loaf: { S: [28, -27], M: [-2, -66], H: [-32, -29], rs: 26, rm: 32, rh: 30, tuck: 0, C: [24, -31], ha: 9, face: 1, fr: [40, -3], fl: [30, -3], hr: [-8, -3], hl: [-14, -3], lean: [86, 86],
+      tr: [-20, 12], t: [-74, -2, -28, 8, 30, -3], lid: 0, sm: 0 },
+    // 起跳前、落地后的那一蹲
+    crouch: { S: [26, -46], M: [-2, -55], H: [-32, -40], rh: 23, C: [54, -60], ha: 6, lean: [34, 34], tr: [-18, -6], t: [-68, -38, -90, -32, -102, -42] },
+    // 腾空：前腿往前伸，后腿往后蹬，尾巴拖在后面
+    air: { S: [32, -66], M: [0, -76], H: [-34, -60], C: [64, -78], ha: -8, fr: [72, -52], fl: [64, -45], hr: [-76, -32], hl: [-68, -25], pf: [-18, -18], lean: [70, 70], t: [-70, -68, -98, -60, -118, -70] },
+    // 干活（踩奶）：稳稳地坐在后腿上，脚掌平放在地，重心在臀；两只前爪轮流往下按
+    work: { S: [20, -56], M: [-2, -50], H: [-24, -24], rs: 20, rm: 22, rh: 26, tuck: .6, C: [42, -70], ha: 22, gx: 1, gy: 4, lid: -21, fr: [25, 0], fl: [17, 0], hr: [0, 0], hl: [-6, 0], lean: [84, 84],
+      tr: [-22, 10], t: [-66, -4, -84, -30, -66, -48] },
+    // 出错：正面伏低成一团
+    oops: { S: [0, -42], M: [0, -36], H: [0, -27], rs: 26, rm: 32, rh: 35, tuck: 0, C: [0, -74], face: 1, fz: 1, fo: 11, ho: 0, fr: [11, 0], fl: [-11, 0], hr: [27, 0], hl: [-27, 0], lean: [80, 80], tr: [26, 18], t: [56, 4, 42, 6, 28, 2], ps: .58, gy: 2 },
+    // 炸毛：背高高弓起，四腿绷直并拢踮高，尾巴竖起炸开
+    hot: { S: [22, -68], M: [0, -132], H: [-22, -66], rs: 19, rm: 20, rh: 20, tuck: .3, C: [48, -62], ha: 16, fr: [26, 0], fl: [20, 0], hr: [-17, 0], hl: [-24, 0], lean: [4, 4], tr: [-13, -12], t: [-40, -112, -48, -150, -36, -182], tw: [10, 8], ps: .5, fur: 1 },
+    // 高兴：四脚站稳，尾巴笔直竖起
+    joy: { C: [54, -84], ha: -6, t: [-50, -104, -54, -148, -44, -172] },
+    // 攀爬：身子竖着贴在窗口的侧边，脸朝上看，前爪往上够，后脚蹬着
+    climb: { S: [4, -84], M: [-12, -54], H: [2, -26], rs: 19, rm: 20, rh: 21, tuck: .4, C: [16, -108], ha: -34, fr: [24, -104], fl: [20, -92], hr: [22, -6], hl: [20, 6], pf: [-50, -50], lean: [50, 50], tr: [-14, 10], t: [-24, 4, -30, 30, -18, 46], gy: -3 },
+    // 被拎着后颈：脊背微弓，头往前探着微微耷拉，前腿悬在身前，后腿松着垂下，爪子蜷着，尾巴夹在两条后腿之间
+    held: { S: [0, -112], M: [-22, -78], H: [2, -42], rs: 19, rm: 20, rh: 21, tuck: .5, C: [30, -118], ha: 26, fr: [30, -66], fl: [22, -60], hr: [20, 18], hl: [10, 22], pf: [70, 70], lean: [28, 28],
+      tr: [-4, 18], t: [0, -2, 12, 14, 22, -8], lid: -20, gy: 3, hx: 1, sm: .5 }
+  };
+  function K(name) { var p = JSON.parse(JSON.stringify(KP.stand)), s = KP[name]; for (var k in s) p[k] = JSON.parse(JSON.stringify(s[k])); return p; }
+  function lerp(a, b, w) { return typeof a === 'number' ? a + (b - a) * w : a.map(function (v, i) { return lerp(v, b[i], w); }); }
+  function blend(a, b, w) { var o = {}; for (var k in b) o[k] = lerp(a[k], b[k], w); return o; }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  // 尾巴的摆动：根部不动，越往尖上摆得越大、越滞后
+  function wag(p, t, speed, amp) { var a = Math.sin(t * speed), b = Math.sin(t * speed - .9); p.t[2] += a * amp * .45; p.t[4] += b * amp; p.t[5] += Math.abs(b) * amp * .25; return p; }
+
+  // 一条腿在一步里的轨迹。q 是这条腿在整个步子里走到哪了（0 到 1）。
+  // 前 62% 脚尖踩在地上不动（相对身子匀速往后）；后 38% 离地往前迈。
+  function step(p, key, q, len, lift, hindIdx) {
+    q = ((q % 1) + 1) % 1; var x0 = p[key][0];
+    if (q < .62) { var s0 = q / .62; p[key] = [x0 + len / 2 - len * s0, 0]; if (hindIdx != null) p.lean[hindIdx] = 6 + 22 * s0; }
+    else { var s = (q - .62) / .38, e = ease(s); p[key] = [x0 - len / 2 + len * e, -lift * Math.sin(Math.PI * s)];
+      if (hindIdx != null) p.lean[hindIdx] = 28 + 30 * Math.sin(Math.PI * s) - 22 * s; else p.pf[key === 'fr' ? 0 : 1] = 62 * Math.sin(Math.PI * Math.min(1, s * 1.3)); }
+  }
+  var GAIT = { walk: { T: .5, len: 38, lift: 8 }, trot: { T: .3, len: 66, lift: 13 }, run: { T: .24, len: 96, lift: 16 } };
+  function gait(kind, t) {
+    var g = GAIT[kind], p = K('stand'), q = t / g.T, trot = kind !== 'walk';
+    // 走：右后、右前、左后、左前依次落地，任何时候至少三只脚在地上。小跑：对角的两条腿一起动。
+    step(p, 'hr', q, g.len, g.lift, 0); step(p, 'fr', q + (trot ? .5 : .75), g.len, g.lift);
+    step(p, 'hl', q + .5, g.len, g.lift, 1); step(p, 'fl', q + (trot ? 0 : .25), g.len, g.lift);
+    var w = q * Math.PI * 2, b = trot ? 2 : 1.1;
+    p.S[1] += Math.sin(w * 2 + .6) * b; p.H[1] += Math.sin(w * 2 + 2.2) * b; p.C[1] += Math.sin(w * 2 + .2) * b * .8; p.C[0] += Math.sin(w * 2 + 1.2) * 1.2; p.ha = Math.sin(w * 2) * 1.5;
+    return wag(p, t, Math.PI * 2 / g.T, trot ? 6 : 4);
+  }
+
+  // 每个状态：给一个时间（秒），返回那一刻的姿态。
+  var GEN = {
+    stand: function (t) { return wag(K('stand'), t, 2.2, 4); },
+    front: function () { return K('front'); },
+    sit: function (t) { var p = K('sit'), b = Math.sin(t * 1.5); p.rm += b * .5; p.C[1] += b * .5; return wag(p, t, 1.5, 4); },
+    walk: function (t) { return gait('walk', t); },
+    trot: function (t) { return gait('trot', t); },
+    run: function (t) { var p = gait('run', t); p.C[0] += 4; p.C[1] += 3; p.ha = 6; p.t[5] += 22; p.t[3] += 14; return p; },
+    loaf: function (t) { var p = K('loaf'), b = Math.sin(t * 1.25); p.rm += b * 1.5; p.M[1] -= b * 1.2; p.C[1] -= b * .4; return p; },
+    crouch: function () { return K('crouch'); },
+    climb: function (t) { var p = K('climb'), w = t * 10, a = Math.sin(w), b = Math.sin(w + Math.PI); p.fr[1] += a * 9; p.fl[1] += b * 9; p.hr[1] += b * 7; p.hl[1] += a * 7; p.S[1] += Math.abs(a) * 1.5; p.C[1] += Math.abs(a) * 1.5; p.t[4] += a * 3; return p; },
+    air: function () { return K('air'); },
+    // 干活：坐着，正对你。毛球在两只前爪之间来回滚，滚到哪边，哪边的爪子就抬起来把它拨回去；眼睛一直跟着球
+    work: function (t) {
+      var p = K('sit'), T = 1.5, q = (((t / T) % 1) + 1) % 1, half = q < .5 ? q * 2 : (q - .5) * 2, e = 1 - (1 - half) * (1 - half), bx = q < .5 ? -14 + 28 * e : 14 - 28 * e;
+      var near = function (side) { return Math.max(0, 1 - Math.abs(bx - side * 14) / 9); }, r = near(1), l = near(-1);
+      p.fo = 11; p.fr = [19 - 4 * r, -7 * r]; p.fl = [-19 + 4 * l, -7 * l]; p.pf = [-20 * r, -20 * l]; p.ball = [bx, bx * 6.5];
+      p.gx = bx / 14 * 3.4; p.gy = 4.2; p.ha = bx / 14 * 4; p.C[0] += bx / 14 * 1.5; p.C[1] += 3; p.S[1] += 1.5; p.lid = -24;
+      return wag(p, t, 2.6, 5);
+    },
+    think: function (t) { var p = K('sit'); p.ha = -11; p.gx = -3; p.gy = -4; p.t[4] += Math.sin(t * 6.5) * 4; p.t[5] += Math.cos(t * 6.5) * 3; return p; },
+    ask: function (t) { var p = K('sit'); p.fr = [26, -52 + Math.sin(t * 2.1) * 2]; p.pf[0] = -30; return wag(p, t, 1.5, 4); },
+    // 不同意：眯着眼，伸一只爪子去拨杯子。杯子怎么动由物理决定，不在这里写
+    no: function (t) { var p = K('sit'), u = t % 5.5, r = u < .5 ? 0 : u < .95 ? ease((u - .5) / .45) : u < 1.5 ? 1 : u < 2.1 ? 1 - ease((u - 1.5) / .6) : 0; p.lid = -14; p.gx = 3.8; p.gy = 2.6; p.fr = [9 + r * 44, -r * 6]; p.pf[0] = -r * 22; p.S[0] += r * 4; p.S[1] += r * 3; p.C[0] += r * 3; p.C[1] += r * 2; p.ha = r * 5; p.t[4] += Math.sin(t * 8) * 4; return p; },
+    // 炸毛：整只猫绷着发抖，侧着身子小步弹
+    hot: function (t) { var p = K('hot'), j = Math.sin(t * 44) * .8, hop = Math.max(0, Math.sin(t * 5.2)) * 3; ['fr', 'fl', 'hr', 'hl'].forEach(function (k) { p[k][1] -= hop; }); p.S[1] -= hop; p.H[1] -= hop; p.M[1] -= hop; p.C[1] -= hop; p.M[0] += j; p.C[0] += j; p.t[4] += Math.sin(t * 31) * 1.6; return p; },
+    // 高兴：坐着，正对你。头左右轻轻晃，身子跟着一颠一颠，尾巴甩得欢；眼睛睁圆，眼里和头边冒小星星（星星在 draw 里画）
+    joy: function (t) { var p = K('sit'), w = t * 5.2, s = Math.sin(w); p.ha = s * 7; p.C[0] += s * 2.5; p.C[1] -= Math.abs(s) * 2.6; p.S[0] += s * 1.2; p.S[1] -= Math.abs(s) * 1.2; p.rm += Math.abs(s) * .6; p.ps = 1.14; return wag(p, t, 8, 8); },
+    oops: function (t) { var p = K('oops'), d = Math.exp(-t * 5) * Math.sin(t * 30) * 2.5; p.C[1] += d; p.S[1] += d * .5; return p; },
+    // 被拎着：整只猫怎么摆是钟摆算出来的（见 tick）。这里只让腿和尾巴比身子再慢半拍
+    held: function () { var p = K('held'), l = rig ? (rig.psi - rig.phi) * 46 : 0; p.fr[0] += l * .7; p.fl[0] += l * .7; p.hr[0] += l; p.hl[0] += l; p.t[2] += l * .6; p.t[4] += l; return p; }
+  };
+  var SIDE = { held: 1, loaf: 1, hot: 1, stand: 1 };
+  var FRONTAL = { sit: 1, think: 1, ask: 1, no: 1, oops: 1, front: 1, work: 1, joy: 1 };
+
+  // ── 几何 ──
+  function two(R, F, a, b, dir) {
+    var dx = F[0] - R[0], dy = F[1] - R[1], d = Math.hypot(dx, dy) || .01, m = Math.max(Math.abs(a - b) + .05, Math.min(d, a + b - .05)), base = Math.atan2(dy, dx), A = Math.acos((a * a + m * m - b * b) / (2 * a * m)), g = base + dir * A;
+    return [R[0] + Math.cos(g) * a, R[1] + Math.sin(g) * a];
+  }
+  function cr(a, b, c, d, t) { return .5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (-a + 3 * b - 3 * c + d) * t * t * t); }
+  function spline(pts, rad, n) {
+    var P = [], R = [], m = pts.length - 1;
+    for (var i = 0; i <= n; i++) { var u = i / n * m, k = Math.min(m - 1, Math.floor(u)), f = u - k, a = pts[Math.max(0, k - 1)], b = pts[k], c = pts[k + 1], d = pts[Math.min(m, k + 2)];
+      P.push([cr(a[0], b[0], c[0], d[0], f), cr(a[1], b[1], c[1], d[1], f)]); R.push(rad[k] + (rad[k + 1] - rad[k]) * f); }
+    return [P, R];
+  }
+  // 给一条中心线，和它两侧各自的厚度，画出外轮廓。RA 是行进方向左手那一侧，RB 是右手那一侧。fur>0 时在 B 侧（或两侧）立起一排毛。
+  function ribbon(P, RA, RB, fur, both) {
+    RB = RB || RA; var n = P.length, A = [], B = [], i, f = function (v) { return v.toFixed(1); }, t0, t1;
+    for (i = 0; i < n; i++) {
+      var a = P[Math.max(0, i - 1)], b = P[Math.min(n - 1, i + 1)], tx = b[0] - a[0], ty = b[1] - a[1], l = Math.hypot(tx, ty) || 1; tx /= l; ty /= l;
+      var nx = ty, ny = -tx, z = fur && i > 0 && i < n - 1 ? (i % 2 ? fur * 8.5 : fur * 1.5) : 0;
+      A.push([P[i][0] + nx * (RA[i] + (both ? z : 0)), P[i][1] + ny * (RA[i] + (both ? z : 0))]); B.push([P[i][0] - nx * (RB[i] + z), P[i][1] - ny * (RB[i] + z)]);
+      if (i === 0) t0 = [tx, ty, nx, ny]; if (i === n - 1) t1 = [tx, ty, nx, ny];
+    }
+    var cap = function (c, ra, rb, T, s) { var o = []; for (var k = 1; k < 6; k++) { var th = Math.PI * k / 6, r = s > 0 ? ra + (rb - ra) * k / 6 : rb + (ra - rb) * k / 6; o.push([c[0] + r * s * (Math.cos(th) * T[2] + Math.sin(th) * T[0]), c[1] + r * s * (Math.cos(th) * T[3] + Math.sin(th) * T[1])]); } return o; };
+    var all = A.concat(cap(P[n - 1], RA[n - 1], RB[n - 1], t1, 1), B.slice().reverse(), cap(P[0], RA[0], RB[0], t0, -1));
+    return { d: 'M' + all.map(function (q) { return f(q[0]) + ' ' + f(q[1]); }).join('L') + 'Z',
+      edge: function (side, from, to) { var S2 = side === 'A' ? A : B, k0 = Math.floor(n * from), k1 = Math.ceil(n * (to || 1)); return 'M' + S2.slice(k0, k1).map(function (q) { return f(q[0]) + ' ' + f(q[1]); }).join('L'); } };
+  }
+  function qb(a, c, b, u) { var v = 1 - u; return [v * v * a[0] + 2 * v * u * c[0] + u * u * b[0], v * v * a[1] + 2 * v * u * c[1] + u * u * b[1]]; }
+  function cb(a, b, c, d, u) { var v = 1 - u; return [v * v * v * a[0] + 3 * v * v * u * b[0] + 3 * v * u * u * c[0] + u * u * u * d[0], v * v * v * a[1] + 3 * v * v * u * b[1] + 3 * v * u * u * c[1] + u * u * u * d[1]]; }
+  function hump(u, c, w) { var z = (u - c) / w; return Math.exp(-z * z); }
+
+  var rig = null, cup = null;
+  function rigInit() {
+    var q = function (c) { return kitty.querySelector('.kq-' + c); };
+    rig = { svg: kitty.querySelector('svg'), all: q('all'), el: {}, bangs: kitty.querySelectorAll('.kq-bang'), stars: kitty.querySelectorAll('.kq-star'), name: 'sit', t0: performance.now(), from: null, dur: 0, last: K('sit'),
+      fx: 50, gy: FLOOR, flip: false, move: null, queue: [], turning: false, prev: performance.now(), phi: 0, om: 0, psi: 0, pom: 0, pvx: 0, hx: 50, hy: 50, cupS: null, calm: window.matchMedia('(prefers-reduced-motion: reduce)').matches };
+    ['tail', 'hl', 'phl', 'fl', 'pfl', 'body', 'clip', 'scruff', 'neck', 'seam', 'seam2', 'hr', 'phr', 'fr', 'pfr', 'head', 'hs', 'hf', 'card', 'far', 'ball'].forEach(function (c) { rig.el[c] = q(c); });
+    kitty.setAttribute('data-s', 'sit'); draw(rig.last, 0);
+    loop();
+  }
+  // 逐帧循环。猫回了箱子就停下，不白白耗电；它一出来再开。隔一帧画一次，大约每秒三十帧。
+  // 窗口名叫 sim 时改用定时器驱动，供无头浏览器里按时间推演、检查走和跳的全过程。
+  function loop() {
+    if (!rig || rig.looping || rig.calm) return; rig.looping = true; var me = rig, skip = false;
+    var alive = function () { if (rig !== me || !kitty || !kitty.isConnected || kitty.classList.contains('gone')) { me.looping = false; return false; } return true; };
+    if (window.name === 'sim') { var iv = setInterval(function () { if (!alive()) { clearInterval(iv); return; } tick(); }, 16); return; }
+    (function frame() { if (!alive()) return; skip = !skip; if (!skip || me.move) tick(); requestAnimationFrame(frame); })();
+  }
+  function place() { kitty.style.left = (rig.fx - KW / 2) + '%'; kitty.style.top = (rig.gy - KH * (-VB[1] / VB[3])) + '%'; }
+  function be(name, dur) {
+    if (!rig) return; rig.from = rig.last; rig.name = name; rig.t0 = performance.now(); rig.dur = dur == null ? 380 : dur; kitty.setAttribute('data-s', name);
+    // 停着的姿势都朝屏幕中间：在右半边就朝左，在左半边就朝右
+    if (FRONTAL[name] || SIDE[name]) rig.flip = rig.fx > 50; if (name === 'no') cupReset(); else if (rig.cupS && rig.cupS.mode === 'stand') cupGone();
+    if (rig.calm) { var tt = rig.testT == null ? .4 : rig.testT; rig.last = GEN[name](tt); draw(rig.last, tt); if (name === 'no') cupCalm(); }
+  }
+
+  function tick() {
+    var now = performance.now(), dt = Math.min(.04, (now - rig.prev) / 1000) || .016; rig.prev = now;
+    var m = rig.move;
+    if (kitty.classList.contains('held')) {
+      rig.flip = rig.fx > 50;      // 拎着它走过屏幕中线，它跟着换一边看
+      // 被拎着：后颈跟着指针走，身子是挂在后颈上的一个钟摆。指针一加速，身子就往反方向甩；有阻尼，慢慢停下来。
+      var vx = (rig.hx - rig.fx) / dt * 1.6, ax = (vx - rig.pvx) / dt; rig.pvx = vx; ax = Math.max(-2500, Math.min(2500, ax));
+      var L = 9; rig.om += (-(G / L) * Math.sin(rig.phi) - (ax / L) * Math.cos(rig.phi) * .12 - 3.4 * rig.om) * dt; rig.phi += rig.om * dt; rig.phi = Math.max(-1.1, Math.min(1.1, rig.phi));
+      rig.pom += (70 * (rig.phi - rig.psi) - 7 * rig.pom) * dt; rig.psi += rig.pom * dt;
+      rig.fx = rig.hx; rig.gy = rig.hy + 132 * UY;
+    } else if (m && m.kind === 'walk') {
+      // 走：身子前进的速度正好等于脚往后蹬的速度，所以脚尖踩在地上不打滑
+      var g = GAIT[m.gait], v = g.len / g.T * UX, left = m.to - rig.fx, s = v * dt;
+      if (Math.abs(left) <= s) { rig.fx = m.to; rig.move = null; next(); } else rig.fx += Math.sign(left) * s;
+    } else if (m && m.kind === 'jump') {
+      // 跳：蹲下蓄力 → 蹬出去 → 只受重力，沿抛物线飞 → 落地一蹲缓冲 → 接后面的姿态
+      var tj = (now - m.t0) / 1000;
+      if (tj >= m.T) { rig.fx = m.x1; rig.gy = m.y1; rig.move = null; if (m.cling) next(); else { be('crouch', 90); rig.turning = true; later(130, function () { rig.turning = false; next(); }); } }
+      else if (tj >= 0) { if (!m.up) { m.up = true; be('air', 160); } rig.fx = m.x0 + m.vx * tj; rig.gy = m.y0 + m.vy * tj + .5 * G * tj * tj; }
+    } else if (m && m.kind === 'fall') {
+      m.v += G * dt; rig.gy += m.v * dt;
+      if (rig.gy >= m.to) { rig.gy = m.to; rig.move = null; be('crouch', 90); rig.turning = true; later(130, function () { rig.turning = false; next(); }); }
+    } else if (m && m.kind === 'climb') {
+      var dirc = m.to < rig.gy ? -1 : 1, sc = CLIMB_V * dt; if (Math.abs(m.to - rig.gy) <= sc) { rig.gy = m.to; rig.move = null; next(); } else rig.gy += dirc * sc;
+    }
+    if (!kitty.classList.contains('held')) { rig.phi *= .8; rig.psi *= .8; }
+    place();
+    var t = (now - rig.t0) / 1000, target = GEN[rig.name](t), w = rig.dur ? ease((now - rig.t0) / rig.dur) : 1;
+    rig.last = rig.from && w < 1 ? blend(rig.from, target, w) : target; draw(rig.last, t); cupStep(dt, rig.last);
+  }
+
+  function draw(p, t) {
+    var E = rig.el, fz = p.fz, side = 1 - fz, i, f1 = function (v) { return v.toFixed(1); };
+    // 被拎着时整只猫绕后颈那一点摆
+    var pivot = [p.S[0] - 8, p.S[1] - 20];
+    rig.all.setAttribute('transform', (rig.flip ? 'scale(-1 1) ' : '') + (Math.abs(rig.phi) > .002 ? 'rotate(' + (rig.phi * 57.3).toFixed(1) + ' ' + f1(pivot[0]) + ' ' + f1(pivot[1]) + ')' : ''));
+
+    // 身子。腹侧（A）和背侧（B）厚度不同：胸深、腹线往后收、臀圆；肩上微隆。
+    var BP = [], RA = [], RB = [], n = p.fur > .02 ? 26 : 14, rmc = 2 * p.rm - (p.rs + p.rh) / 2, k = side * p.tuck;
+    for (i = 0; i <= n; i++) { var u = i / n, base = (1 - u) * (1 - u) * p.rs + 2 * u * (1 - u) * rmc + u * u * p.rh; BP.push(qb(p.S, p.M, p.H, u));
+      RA.push(base + k * (6.5 * hump(u, .1, .24) - 3.4 * hump(u, .66, .22) + 1.5 * hump(u, 1, .2))); RB.push(base + k * (2.5 * hump(u, .14, .16) - 1.5 * hump(u, .5, .25))); }
+    var body = ribbon(BP, RA, RB, p.fur, false); E.body.setAttribute('d', body.d); E.clip.setAttribute('d', body.d);
+    // 脊背在肩和胯处的方向，用来确定"腹侧"朝哪：站着时朝下，被拎着时朝前
+    var dS = [BP[1][0] - BP[0][0], BP[1][1] - BP[0][1]], lS = Math.hypot(dS[0], dS[1]) || 1, vS = [dS[1] / lS, -dS[0] / lS];
+    var dH = [BP[n][0] - BP[n - 1][0], BP[n][1] - BP[n - 1][1]], lH = Math.hypot(dH[0], dH[1]) || 1, vH = [dH[1] / lH, -dH[0] / lH];
+    if (fz > .5) { vS = [0, 1]; vH = [0, 1]; }
+
+    // 脖子、后颈那一撮被捏起来的皮
+    var NK = [p.C[0] - 15 * (1 - p.face), p.C[1] + 12 + 10 * p.face], nk = spline([p.S, [(p.S[0] + NK[0]) / 2, (p.S[1] + NK[1]) / 2], NK], [p.rs * .82, 17, 16 - 3 * p.face], 6);
+    E.neck.setAttribute('d', ribbon(nk[0], nk[1]).d);
+    E.scruff.setAttribute('d', p.hx > .02 ? 'M' + f1(p.S[0] - 16) + ' ' + f1(p.S[1] - 6) + ' L' + f1(pivot[0] - 2) + ' ' + f1(pivot[1] - 6 * p.hx) + ' L' + f1(p.S[0] + 8) + ' ' + f1(p.S[1] - 14) + 'Z' : '');
+
+    // 尾巴：从根到尖渐细
+    var T0 = [p.H[0] + p.tr[0], p.H[1] + p.tr[1]], TP = [], TR = [], tn = p.fur > .02 ? 22 : 14;
+    for (i = 0; i <= tn; i++) { var v = i / tn; TP.push(cb(T0, p.t.slice(0, 2), p.t.slice(2, 4), p.t.slice(4, 6), v)); TR.push(p.tw[0] + (p.tw[1] - p.tw[0]) * v); }
+    E.tail.setAttribute('d', ribbon(TP, TR, TR, p.fur * .8, true).d);
+
+    var seam = '', seam2 = '';
+    // 脚尖：很小的一块，贴着地，顺着脚掌的方向往前一点点
+    var toes = function (e, from, toe, rx, ry) { var ang = Math.atan2(toe[1] - from[1], toe[0] - from[0]) * 57.3 - 90, fwd = 2.4 * side;
+      e.setAttribute('cx', f1(toe[0] + fwd)); e.setAttribute('cy', f1(toe[1] - ry + .4)); e.setAttribute('rx', rx); e.setAttribute('ry', ry); e.setAttribute('transform', 'rotate(' + f1(ang * .6) + ' ' + f1(toe[0]) + ' ' + f1(toe[1] - ry) + ')'); };
+    // 前腿：从胸下到腕是一根直的、上粗下细的柱子；腕以下是一小截爪子，离地时往后耷拉。
+    var front = function (sx, toe, droop, pathEl, pawEl, near) {
+      var Eb = [p.S[0] + sx + vS[0] * p.rs * .62 - 1 * side, p.S[1] + vS[1] * p.rs * .62], d = droop * Math.PI / 180;
+      var wrist = [toe[0] - 2.2 * side * Math.cos(d) + 6.5 * Math.sin(d) * side, toe[1] - 6.5 * Math.cos(d) - 1.5 * Math.sin(d)];
+      var rb = ribbon([Eb, [(Eb[0] + wrist[0]) / 2, (Eb[1] + wrist[1]) / 2], wrist], [9.2, 7.2, 5.6]);
+      pathEl.setAttribute('d', rb.d); toes(pawEl, wrist, toe, 5.4, 3.6);
+      if (near) seam += rb.edge('A', .45) + rb.edge('B', .45); seam2 += rb.edge(sx > 0 ? 'A' : 'B', .2);
+    };
+    // 后腿：大腿从胯往前下到膝，小腿从膝往后下到跗关节，脚掌从跗关节往前下到脚尖。只有脚尖着地。
+    var hind = function (sx, toe, leanDeg, pathEl, pawEl, near) {
+      var R = [p.H[0] + sx + vH[0] * 4 + 2 * side, p.H[1] + vH[1] * 4], a = leanDeg * Math.PI / 180;
+      var hock = [toe[0] - Math.sin(a) * LM, toe[1] - Math.cos(a) * LM - 2.2];
+      // 膝藏在腹侧的轮廓里，看得见的只是大腿前缘微微往前鼓一点
+      var dxk = hock[0] - R[0], dyk = hock[1] - R[1], dk = Math.hypot(dxk, dyk) || 1, fold = Math.max(0, 1 - dk / (LT + LS)), bow = 3 + 16 * fold;
+      var knee = [R[0] + dxk * .5 + (dyk / dk) * bow, R[1] + dyk * .5 - (dxk / dk) * bow];
+      var sp = spline([R, knee, hock, [toe[0] - 1.2, toe[1] - 3.4]], [16, 11.5, 5.2, 4], 14), rb = ribbon(sp[0], sp[1]);
+      pathEl.setAttribute('d', rb.d); pathEl.style.opacity = side.toFixed(2); toes(pawEl, hock, toe, 5.2 + 1.2 * fz, 3.4 + .8 * fz);
+      if (near) seam += rb.edge('A', .1, .6);
+    };
+    hind(p.ho, p.hr, p.lean[0], E.hr, E.phr, true); hind(-p.ho, p.hl, p.lean[1], E.hl, E.phl, false);
+    front(p.fo, p.fr, p.pf[0], E.fr, E.pfr, true); front(-p.fo, p.fl, p.pf[1], E.fl, E.pfl, false);
+    // 正对你坐着时，后腿收在身子两侧：只勾出两团臀的弧线
+    [1, -1].forEach(function (sg) { seam2 += 'M' + f1(p.H[0] + sg * p.rh * .5) + ' ' + f1(p.H[1] - p.rh * .62) + ' Q' + f1(p.H[0] + sg * p.rh * 1.02) + ' ' + f1(p.H[1] - p.rh * .2) + ' ' + f1(p.H[0] + sg * p.rh * .5) + ' ' + f1(p.H[1] + p.rh * .9); });
+    // 远侧的腿略浅一点，侧面时才分得出四条腿；转成正面时变回同样的黑
+    var c = function (a, b) { return Math.round(a + (b - a) * fz); }; E.far.setAttribute('fill', 'rgb(' + c(62, 31) + ',' + c(58, 29) + ',' + c(54, 26) + ')');
+    E.seam.setAttribute('d', seam); E.seam.style.opacity = (.34 * Math.max(0, 1 - fz * 2) * p.sm).toFixed(2); E.seam2.setAttribute('d', seam2); E.seam2.style.opacity = (.5 * Math.max(0, fz * 2 - 1) * p.sm).toFixed(2);
+
+    // 头：侧着露侧脸，正着露正脸
+    E.head.setAttribute('transform', 'translate(' + f1(p.C[0]) + ' ' + f1(p.C[1]) + ') rotate(' + f1(p.ha) + ')');
+    E.hs.style.opacity = Math.max(0, Math.min(1, (.6 - p.face) / .2)).toFixed(2); E.hf.style.opacity = Math.max(0, Math.min(1, (p.face - .4) / .2)).toFixed(2);
+    var st = rig.svg.style; st.setProperty('--lid', f1(p.lid) + 'px'); st.setProperty('--gx', f1(p.gx) + 'px'); st.setProperty('--gy', f1(p.gy) + 'px'); st.setProperty('--ps', p.ps.toFixed(2));
+    kitty.classList.toggle('shut', p.lid > -3);
+    // 牌子、三个叹号、毛球、星星
+    var name = rig.name;
+    E.ball.setAttribute('transform', 'translate(' + f1(p.ball[0]) + ' -11.5) rotate(' + f1(p.ball[1]) + ')');
+    for (i = 0; i < rig.stars.length; i++) { var ph = name === 'joy' ? ((t * .75 + i / 5) % 1) : 0, an = (-162 + i * 36) * Math.PI / 180, rr = 44 + 20 * ph, so = name === 'joy' ? Math.sin(Math.PI * ph) : 0;
+      rig.stars[i].setAttribute('transform', 'translate(' + f1(p.C[0] + Math.cos(an) * rr) + ' ' + f1(p.C[1] - 6 + Math.sin(an) * rr) + ') rotate(' + f1(t * 70 + i * 40) + ') scale(' + (1.15 + 1.35 * so).toFixed(2) + ')'); rig.stars[i].style.opacity = so.toFixed(2); }
+    E.card.setAttribute('transform', 'translate(' + f1(p.fr[0] + 16) + ' ' + f1(p.fr[1] - 20) + ')');
+    for (i = 0; i < 3; i++) { var kk = name === 'oops' ? Math.max(0, Math.min(1, (t - .1 - i * .13) / .16)) : 0, sc = kk < 1 ? kk * 1.25 : 1 + .25 * Math.max(0, 1 - (t - .26 - i * .13) / .1);
+      rig.bangs[i].setAttribute('transform', 'translate(' + f1(p.C[0] + (i - 1) * 20) + ' ' + f1(p.C[1] - 52 - (i === 1 ? 8 : 0)) + ') rotate(' + (i - 1) * 13 + ') scale(' + sc.toFixed(2) + ')'); rig.bangs[i].style.opacity = kk > 0 ? 1 : 0; }
+  }
+
+  // ── 杯子：一个真的刚体 ──
+  // 任务栏是高度为零的那条线；任何窗口的上沿都是比它高的一个台面。
+  // 杯子立在猫脚下的那个面上。爪子拨到它，它绕着底边的一角翻倒：过了平衡点之前靠爪子顶，过了之后靠重力自己倒下去。
+  // 倒在任务栏上，就躺在那儿。倒在窗口上沿，它会滚出台面，只受重力落到任务栏那条线上，弹一两下，损失大半能量，最后躺住。
+  function unit() { return kitty.getBoundingClientRect().width / VB[2]; }
+  function cupReset() {
+    var d = dsk.getBoundingClientRect(), u = unit(), w = 15 * u, h = 20 * u, surf = rig.gy / 100 * d.height, ground = FLOOR / 100 * d.height;
+    rig.cupS = { mode: 'stand', x: rig.fx / 100 * d.width + 58 * u, y: surf, vx: 0, vy: 0, a: 0, w: 0, W: w, H: h, surf: surf, ground: ground, high: surf < ground - 4, bounces: 0, rest: 0, px: 100, py: 100 };
+    cup.hidden = false; cup.style.width = w + 'px'; cup.style.height = h + 'px'; cup.style.opacity = 1; cupDraw();
+  }
+  function cupGone() { if (cup) cup.hidden = true; if (rig) rig.cupS = null; }
+  function cupDraw() { var c = rig.cupS; cup.style.left = (c.x - c.W / 2) + 'px'; cup.style.top = (c.y - c.H) + 'px'; cup.style.transformOrigin = c.px + '% ' + c.py + '%'; cup.style.transform = 'rotate(' + (c.a * 57.3).toFixed(1) + 'deg)'; }
+  function cupCalm() { var c = rig.cupS; if (!c) return; var u = unit(), d = dsk.getBoundingClientRect(), paw = rig.fx / 100 * d.width + (rig.last.fr[0] + 9) * u; if (paw > c.x - c.W / 2) { c.a = Math.PI / 2; c.cx = c.x + c.W / 2 + c.H / 2; c.cy = c.surf - c.W / 2; c.px = 50; c.py = 50; c.x = c.cx; c.y = c.cy + c.H / 2; } cupDraw(); }
+  function cupStep(dt, p) {
+    var c = rig.cupS; if (!c) return; var d = dsk.getBoundingClientRect(), u = unit(), g = G / 100 * d.height;
+    if (c.mode === 'stand') {
+      if (rig.name === 'no') { var paw = rig.fx / 100 * d.width + (p.fr[0] + 9) * u; if (paw > c.x - c.W / 2) { c.mode = 'topple'; c.w = 2.6; } }
+    } else if (c.mode === 'topple') {
+      // 绕右下角翻。平衡点是重心正好在这个角正上方的那个角度：之前重力往回拉，之后重力往下带
+      var bal = Math.atan2(c.W, c.H), r = Math.hypot(c.W, c.H) / 2;
+      c.w += g * Math.sin(c.a - bal) / (r * 1.33) * dt; if (c.a < bal) c.w = Math.max(c.w, 2.4); c.a += c.w * dt;
+      if (c.a >= Math.PI / 2) {
+        // 侧面着了台面。换成以杯子中心来算位置
+        c.a = Math.PI / 2; c.cx = c.x + c.W / 2 + c.H / 2; c.cy = c.surf - c.W / 2; c.px = 50; c.py = 50;
+        if (c.high) { c.mode = 'roll'; c.vx = c.w * c.W * .35; c.rolled = 0; } else { c.mode = 'rest'; c.vx = c.w * c.W * .25; c.floor = c.surf; }
+      }
+    } else if (c.mode === 'roll') {
+      // 在台面上往外滚一小段，滚出去就掉
+      c.cx += c.vx * dt; c.a += c.vx / (c.W / 2) * dt * .5; c.rolled += c.vx * dt; if (c.rolled > c.W * .8) { c.mode = 'fly'; c.vy = 0; c.w = c.vx / (c.W / 2) * .5; }
+    } else if (c.mode === 'fly') {
+      c.vy += g * dt; c.cx += c.vx * dt; c.cy += c.vy * dt; c.a += c.w * dt;
+      if (c.cy + c.W / 2 >= c.ground && c.vy > 0) { c.cy = c.ground - c.W / 2; c.bounces++; if (c.vy < g * .09 || c.bounces > 3) { c.mode = 'rest'; c.floor = c.ground; c.a = Math.round(c.a / Math.PI - .5) * Math.PI + Math.PI / 2; } else { c.vy = -c.vy * .32; c.vx *= .55; c.w *= .45; } }
+    } else if (c.mode === 'rest') {
+      c.vx *= Math.pow(.03, dt); c.cx += c.vx * dt; c.cy = c.floor - c.W / 2; c.rest += dt;
+      if (c.rest > 2) cup.style.opacity = Math.max(0, 1 - (c.rest - 2) / .5); if (c.rest > 2.6) { if (rig.name === 'no') cupReset(); else cupGone(); return; }
+    }
+    if (c.mode !== 'stand' && c.mode !== 'topple') { c.x = c.cx; c.y = c.cy + c.H / 2; }
+    cupDraw();
+  }
+
+  // ── 它怎么去一个地方：把窗口当猫爬架 ──
+  // 任务栏是高度为零的那条线，每个窗口的上沿是一层台面。它在台面之间轻跳着走。
+  // 一跳的极限：两层台面左右隔着的空当、上下的高度差，都不超过屏幕的三分之一。
+  // 目的地一跳够不着，就找中间能落脚的台面一层层跳过去；实在没有落脚处，它就从屏幕的侧边跳出去，隔一小会儿，再对着目的地上沿的高度从侧边跳回来。
+  var JUMP_X = 33, JUMP_Y = 33, CLIMB_V = 44;
+  function surfaces() {
+    var L = [{ id: 'floor', y: FLOOR, x0: 2, x1: 98 }];
+    Array.prototype.forEach.call(dsk.querySelectorAll('.wnd'), function (w) { var r = rel(w); if (r.y > 6) L.push({ id: w, y: r.y + .5, x0: r.x + 2, x1: r.x + r.w - 2, left: r.x, right: r.x + r.w }); });
+    return L;
+  }
+  function under(L, x, y) { var best = null; L.forEach(function (s) { if (Math.abs(s.y - y) < 1.6 && x >= s.x0 - 3 && x <= s.x1 + 3) best = s; }); return best; }
+  function gapX(a, b) { return Math.max(0, Math.max(a.x0, b.x0) - Math.min(a.x1, b.x1)); }
+  function canHop(a, b) { return gapX(a, b) <= JUMP_X && Math.abs(a.y - b.y) <= JUMP_Y; }
+  // 从一层台面到另一层，最少跳几次、依次经过哪些台面
+  function route(L, a, b) {
+    if (a === b) return [a]; var seen = [a], q = [[a]];
+    while (q.length) { var path = q.shift(), last = path[path.length - 1];
+      for (var i = 0; i < L.length; i++) { var s = L[i]; if (seen.indexOf(s) >= 0 || !canHop(last, s)) continue; var np = path.concat([s]); if (s === b) return np; seen.push(s); q.push(np); } }
+    return null;
+  }
+  // 沿着一串台面跳过去：每一跳都从这层离下一层最近的地方起跳，落在下一层离得最近的地方
+  function hops(path, x, steps) {
+    for (var i = 1; i < path.length; i++) { var a = path[i - 1], b = path[i], lo = Math.max(a.x0, b.x0), hi = Math.min(a.x1, b.x1), take, land;
+      if (lo <= hi) { take = Math.max(lo, Math.min(hi, x)); land = take; } else if (b.x0 > a.x1) { take = a.x1; land = b.x0; } else { take = a.x0; land = b.x1; }
+      steps.push({ kind: 'walk', to: take }); steps.push({ kind: 'jump', x: land, y: b.y }); x = land; }
+    return x;
+  }
+  // 没有落脚的台面：走到这层靠屏幕边的那一头，跳出屏幕；隔一小会儿，从那一侧对着目的地的高度跳回来，落在目的地靠边的那一头
+  function portal(from, to, x, steps) {
+    var left = x + to.x0 <= (100 - x) + (100 - to.x1), off = left ? -8 : 108, land = left ? to.x0 : to.x1;
+    steps.push({ kind: 'walk', to: left ? from.x0 : from.x1 }); steps.push({ kind: 'jump', x: off, y: from.y - 3, exit: true });
+    steps.push({ kind: 'warp', x: off, y: to.y - 3, wait: 420 }); steps.push({ kind: 'jump', x: land, y: to.y });
+    return land;
+  }
+  function plan(fx, gy, then) {
+    var L = surfaces(), to = under(L, fx, gy) || L[0], from = under(L, rig.fx, rig.gy), steps = [], x = rig.fx, floorS = L[0];
+    if (!from) { var here = { y: rig.gy, x0: rig.fx, x1: rig.fx }; if (to !== floorS && canHop(here, to)) { var lx = Math.max(to.x0, Math.min(to.x1, rig.fx)); steps.push({ kind: 'jump', x: lx, y: to.y }); from = to; x = lx; } else { var bx = Math.max(3, Math.min(97, rig.fx)); steps.push({ kind: 'jump', x: bx, y: FLOOR }); from = floorS; x = bx; } }
+    var r = route(L, from, to);
+    x = r ? hops(r, x, steps) : portal(from, to, x, steps);
+    steps.push({ kind: 'walk', to: Math.max(to.x0, Math.min(to.x1, fx)) }); steps.push({ kind: 'state', name: then || 'sit' });
+    return steps;
+  }
+
+  function emerge() {
+    if (out) return; var r = rel(box); kitty.classList.remove('gone'); rig.prev = performance.now(); loop(); rig.fx = r.x + r.w * .45; rig.gy = r.y + r.h * .5; rig.flip = false; rig.move = null; rig.queue = []; place(); out = true; pose(); be('crouch', 0);
+  }
+  function idle() { return !rig || (!rig.move && !(rig.queue && rig.queue.length) && !rig.turning); }
+  // 等它到了地方再做某件事
+  function whenIdle(fn) { if (idle()) { fn(); return; } later(120, function () { whenIdle(fn); }); }
+  function act(name, dur) { whenIdle(function () { be(name, dur); }); }
+  // 朝向变了就先转身：身子转成正对你，再转向另一边
+  function face(left, go) {
+    if (rig.flip === left) { go(); return; }
+    rig.turning = true; kitty.classList.remove('turn'); void kitty.offsetWidth; kitty.classList.add('turn'); be('front', 160); later(170, function () { rig.flip = left; rig.turning = false; go(); }); later(360, function () { kitty.classList.remove('turn'); });
+  }
+  function next() {
+    if (!rig || !rig.queue || !rig.queue.length) return; var s = rig.queue.shift(), dx;
+    if (s.kind === 'state') { kitty.classList.toggle('ground', rig.gy > FLOOR - 2); if (s.name === 'home') { kitty.classList.add('gone'); out = false; cupGone(); pose(s.box || 'calm'); return; } be(s.name, 460); next(); return; }
+    if (s.kind === 'walk') { dx = s.to - rig.fx; if (Math.abs(dx) < .8) { next(); return; }
+      face(dx < 0, function () { var d = Math.abs(dx), g = d < 6 ? 'walk' : d < 26 ? 'trot' : 'run'; be(g, 200); rig.move = { kind: 'walk', gait: g, to: s.to }; }); return; }
+    if (s.kind === 'jump') { dx = s.x - rig.fx;
+      face(Math.abs(dx) < .6 ? rig.flip : dx < 0, function () {
+        // 轻轻一跳：先定最高点只比起点和落点里较高的那个高出一点，再由重力反推起跳速度和滞空时间
+        be('crouch', 150); var top = Math.min(rig.gy, s.y) - (3.2 + Math.abs(dx) * .1), vy = -Math.sqrt(2 * G * (rig.gy - top)), T = (-vy + Math.sqrt(vy * vy + 2 * G * (s.y - rig.gy))) / G;
+        rig.move = { kind: 'jump', t0: performance.now() + 160, T: T, x0: rig.fx, y0: rig.gy, x1: s.x, y1: s.y, vx: dx / T, vy: vy, cling: s.cling || s.exit };
+      }); return; }
+    // 出了屏幕：藏起来，换到目的地的高度，等一小会儿再露面
+    if (s.kind === 'warp') { kitty.classList.add('away'); rig.fx = s.x; rig.gy = s.y; rig.flip = s.x > 50; be('air', 0); rig.turning = true; later(s.wait, function () { kitty.classList.remove('away'); rig.turning = false; next(); }); }
+  }
+  function travel(fx, gy, then) {
+    emerge(); then = then || 'sit';
+    if (rig.calm) { rig.fx = fx; rig.gy = gy; rig.flip = false; rig.queue = []; place(); kitty.classList.toggle('ground', gy > FLOOR - 2); be(then, 0); return; }
+    rig.queue = plan(fx, gy, then); rig.move = null; next();
+  }
+  function perch(w, frac, then) { emerge(); var r = rel(w); travel(r.x + r.w * frac, r.y + .5, then); }
+  function floor(x, then) { emerge(); travel(x, FLOOR, then); }
+  function goHome(state) {
+    if (!out) { pose(state); return; }
+    var r = rel(box);
+    if (rig.calm) { kitty.classList.add('gone'); out = false; cupGone(); pose(state || 'calm'); return; }
+    var steps = plan(r.x + r.w * .45 - 6, FLOOR, 'crouch'); steps.pop(); steps.push({ kind: 'jump', x: r.x + r.w * .45, y: r.y + r.h * .5 }); steps.push({ kind: 'state', name: 'home', box: state || 'calm' });
+    rig.queue = steps; rig.move = null; next();
+  }
+  // 被放下：从松手的地方只受重力落下去，落到下方最近的台面；松在箱子上方就回家
+  function settle() {
+    var b = rel(box), feet = rig.gy; rig.queue = [];
+    if (rig.fx > b.x && rig.fx < b.x + b.w && feet > b.y - 8 && feet < b.y + b.h + 8) { kitty.classList.add('gone'); out = false; pose('calm'); return; }
+    var y = FLOOR; surfaces().forEach(function (s) { if (s.id !== 'floor' && rig.fx > s.x0 - 2 && rig.fx < s.x1 + 2 && s.y >= feet - 3 && s.y < y) y = s.y; });
+    kitty.classList.toggle('ground', y === FLOOR);
+    if (rig.calm || y <= feet) { rig.gy = y; place(); be('sit', 300); return; }
+    be('air', 180); rig.queue = [{ kind: 'state', name: 'sit' }]; rig.move = { kind: 'fall', v: 0, to: y };
+  }
+  function refuse() { emerge(); act('no', 420); }
+  // 它自己逛
+  function wander() {
+    if (!idle()) return;
+    var L = surfaces(), cur = under(L, rig.fx, rig.gy) || L[0], nearby = L.filter(function (s) { return s !== cur && canHop(cur, s); }), pool = nearby.length && Math.random() < .8 ? nearby : L, s = pool[Math.floor(Math.random() * pool.length)];
+    travel(s.x0 + Math.random() * (s.x1 - s.x0), s.y, Math.random() < .2 ? 'loaf' : 'sit');
+  }
+  function size() { return rel(kitty); }
+
+  // ── 别的组件 ──
+  function wnd(kind, title, x, y, w, h, body) { return put(el('div', 'wnd ' + kind, '<header><b>' + title + '</b><span>— □ ×</span></header><div class="body">' + body + '</div>'), x, y, w, h); }
+  function pop(cls, html, x, y) { return put(el('div', 'pop ' + (cls || ''), html), x, y); }
+  // 闲话气泡：贴着猫（或箱子）冒出来，过一会儿自己淡掉
+  function banter(html, stay) {
+    var who = out ? kitty : box, r = rel(who), p = pop('chat', html, 0, 0); var pr = rel(p);
+    p.style.left = Math.max(1, r.x - pr.w + r.w * .2) + '%'; p.style.top = Math.max(1, r.y - pr.h + (out ? 1 : 5)) + '%';
+    if (stay) { later(stay, function () { p.classList.add('fade'); }); later(stay + 1700, function () { p.remove(); }); }
+    return p;
+  }
+  function ring(x, y, w, h) { return put(el('div', 'ringbox'), x, y, w, h); }
+  function say(text, hint) { stepEl.innerHTML = text + (hint ? '<small>' + hint + '</small>' : ''); }
+  function on(root, sel, n) { var b = root.querySelector(sel); if (b) b.addEventListener('click', function () { if (at === n) advance(); }); }
+  function drop(sel) { var e = dsk.querySelector(sel); if (e) e.remove(); }
+
+  var FILES = '<ul class="files">' + ['导出_9月.csv|昨天', '导出_8月.csv|9月2日', '对照表.xlsx|8月30日', '说明.md|8月29日'].map(function (f, i) { var p = f.split('|'); return '<li' + (i === 0 ? ' draggable="true" id="dragme"' : '') + '>' + p[0] + '<em>' + p[1] + '</em></li>'; }).join('') + '</ul>';
+  var STATES = [['sit', '坐着'], ['walk', '走'], ['loaf', '蜷着睡'], ['work', '干活'], ['think', '想'], ['ask', '举牌'], ['no', '不同意'], ['hot', '炸毛'], ['joy', '高兴'], ['oops', '出错'], ['held', '被拎着']];
+
+  var scenes = [
+    { name: '猫在外面', steps: [
+      { t: '猫出了箱子就是一只自由的猫。拎着它的后颈把它提起来放到别处，再点上面的按钮逐个看它的状态。', h: '换状态时留意中间的过渡：走着停下再坐、蹲一下再跳、站着蜷下去睡。松手后它落到下方最近的台面；放回箱子上就回家。点一下猫是摸它。<br><b>点一下窗口的标题栏或任务栏，它就过去。</b>它在台面之间是跳着走的：一跳最远隔屏幕的三分之一（左右、上下都是）；够不着就找中间的台面一层层跳；实在没有落脚处，它从屏幕侧边跳出去，再从目的地的高度跳回来。', run: function () {
+          wnd('', '备忘.md', 6, 30, 40, 42, '<div class="md"><p>这只是一个让它有地方蹲的窗口。</p></div>'); wnd('term', 'PowerShell', 52, 44, 30, 30, '<span class="dim">PS D:\\&gt;</span> ');
+          summon(84, 72, 'calm'); floor(34, 'sit');
+          var p = pop('wide', '<div class="acts" style="margin:0">' + STATES.map(function (s) { return '<button data-s="' + s[0] + '">' + s[1] + '</button>'; }).join('') + '<button class="go" data-roam>让它自己逛</button><button data-max>把终端最大化</button><button data-home>回箱子</button></div>', 3, 4);
+          p.addEventListener('click', function (e) {
+            var b = e.target.closest('button'); if (!b) return;
+            if (b.hasAttribute('data-roam')) { if (roam) { clearInterval(roam); roam = null; b.textContent = '让它自己逛'; } else { wander(); roam = setInterval(wander, 2600); b.textContent = '别逛了'; } return; }
+            if (b.hasAttribute('data-home')) { clearInterval(roam); roam = null; goHome('calm'); return; }
+            if (b.hasAttribute('data-max')) {
+              var w = dsk.querySelector('.wnd.term'), icon = dsk.querySelectorAll('.bar i')[2], big = !w.hasAttribute('data-keep'); icon.classList.toggle('lit', big);
+              if (big) { w.setAttribute('data-keep', [w.style.left, w.style.top, w.style.width, w.style.height].join('|')); w.style.left = '0'; w.style.top = '0'; w.style.width = '100%'; w.style.height = '95%'; w.style.zIndex = 5; var ir = rel(icon); floor(ir.x + ir.w / 2, 'sit'); b.textContent = '还原终端';
+                say('终端最大化了，没有上沿可蹲。它下到任务栏上，蹲在这个程序的图标上面。', '图标亮着的那个就是它在关心的程序。真正全屏（看视频、打游戏）时它不出来，只在屏幕边上露半个头。'); }
+              else { var v = w.getAttribute('data-keep').split('|'); w.removeAttribute('data-keep'); w.style.left = v[0]; w.style.top = v[1]; w.style.width = v[2]; w.style.height = v[3]; w.style.zIndex = ''; b.textContent = '把终端最大化'; later(60, function () { perch(w, .6, 'sit'); }); }
+              return; }
+            var s = b.getAttribute('data-s'); if (s === 'walk') { emerge(); var here = rig.fx, to = here > 40 ? here - 10 - Math.random() * 26 : here + 10 + Math.random() * 26; travel(to, rig.gy, 'sit'); return; }
+            if (s === 'no') { refuse(); return; }
+            emerge(); be(s);
+          }); } }
+    ] },
+    { name: '一起看', steps: [
+      { t: '你在浏览器里看一篇文章。它在箱子里。', h: '聊天和邮件窗口它不凑。', run: function () {
+          wnd('page', 'Firefox', 8, 22, 60, 62, '<div class="page"><h3>我们花了三个月，把构建时间从 40 秒降到了 39 秒</h3><div class="thm"></div><p>起初我们以为瓶颈在打包。后来发现在测试。再后来发现在我们自己。</p><p>下面是完整的复盘，共一万两千字。</p></div>').id = 'w1';
+          summon(82, 70, 'calm'); } },
+      { t: '它从箱子里出来，走到这个窗口上蹲下，跟你一起看。', h: '箱子留在原地，敞着。它在哪个窗口上，关心的就是哪个窗口。', run: function () { perch(document.getElementById('w1'), .84, 'sit'); } },
+      { t: '它说了一句。几秒后自己淡掉，不用你回。', h: '这是闲话：像两个人凑在一块看屏幕时，旁边那个人嘀咕的一句。', run: function () { banter('一万两千字，省了一秒。这复盘本身得占掉半秒。', 3800); } },
+      { t: '你觉得这句不错，摸了它一下。', h: '摸一下 = 这类话可以多说。它记的是"这类"，不是这一句。', run: function () { act('joy', 200); later(1500, function () { act('sit', 400); }); } },
+      { t: '换个时候你嫌它碍事，把它赶开。', h: '它不一定回箱子。它自己找个角落趴下，这一阵不出声。', run: function () { floor(9, 'loaf'); } }
+    ] },
+    { name: '说闲话', steps: [
+      { t: '你在写一份周报。它在箱子里看着。', h: '这一场它不出箱子。', run: function () {
+          wnd('', '周报.md · Typora', 8, 12, 56, 66, '<div class="md"><h3>这周做了什么</h3><p>把普查脚本补齐了，三层都能跑。</p><p id="sent">关于猫的交互这一块，目前的情况是在之前的基础上进行了一定程度的补充和完善的工作。</p><p>下周打算先做认家。</p></div>');
+          summon(76, 62, 'calm'); } },
+      { t: '它突然搭了句话。', h: '这是打趣，不是指点：它没说你哪里不对，也没说你该怎么改。不用回，过一会儿自己淡掉。', run: function () {
+          pose('say'); banter('"进行了一定程度的补充和完善的工作"。<br>你这是写周报，还是写给组织的思想汇报。').id = 'chat'; } },
+      { t: '你要是想接，可以接。比如回它一句：那你说怎么写。', h: '接不接随你。不接，这事就过去了，它不会追着说。', run: function () {
+          var c = document.getElementById('chat'); c.insertAdjacentHTML('beforeend', '<div class="acts"><button class="go" data-go>那你说怎么写</button><button>哈哈</button></div>'); on(c, '[data-go]', 2); } },
+      { t: '它手里有具体的改法，所以这次它给了：一句改好的话，贴在原句旁边。', h: '它要么只是闲聊，要么给出能直接用的东西。"这里可以再好一点"这种话它不说。', run: function () {
+          drop('#chat'); pose('calm'); document.getElementById('sent').classList.add('wavy');
+          var p = pop('margin', '<del>目前的情况是在之前的基础上进行了一定程度的补充和完善的工作</del><br><ins>猫的交互补了一轮</ins><div class="acts"><button class="go" data-go>换上</button><button>不用</button></div>', 36, 39); p.id = 'mg'; on(p, '[data-go]', 3); } },
+      { t: '你点了"换上"。', h: '', run: function () {
+          drop('#mg'); var s = document.getElementById('sent'); s.classList.remove('wavy'); s.textContent = '猫的交互补了一轮。'; s.classList.add('flash'); later(200, function () { s.style.background = 'transparent'; }); } }
+    ] },
+    { name: '拖给它', steps: [
+      { t: '把第一个文件拖进箱子试试，或者点"下一步"。', h: '拖过去就是"看看这个"，不用解释。', run: function () {
+          wnd('', '资源管理器 · 导出', 6, 22, 46, 50, FILES).id = 'w1'; summon(70, 56, 'calm');
+          document.getElementById('dragme').addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', 'x'); });
+          box.addEventListener('dragover', function (e) { e.preventDefault(); box.classList.add('drop'); });
+          box.addEventListener('dragleave', function () { box.classList.remove('drop'); });
+          box.addEventListener('drop', function (e) { e.preventDefault(); box.classList.remove('drop'); if (at === 0) advance(); }); } },
+      { t: '它接住了，问你要它拿这个干什么。', h: '选项跟着东西变：拖文件是这四样，拖一段字、一个网址又是别的。', run: function () {
+          pose('ask'); var r = put(el('div', 'radial', '<button data-go>看看</button><button>记住它在哪</button><button>收着</button><button>找相似的</button>'), 60, 40); on(r, '[data-go]', 1); } },
+      { t: '你选了"看看"。它看完，把结论举在手里。', h: '结论贴在箱子边上，不进聊天框。', run: function () {
+          drop('.radial'); pose('think');
+          later(1000, function () { pose('say'); var p = pop('', '<h4>和 8 月那份只差 3 行</h4>多出来的 3 行都是 9 月 28 日的。<div class="acts"><button class="go" data-go>指给我看</button><button>知道了</button></div>', 48, 30); p.id = 'res'; on(p, '[data-go]', 2); }); } },
+      { t: '你点"指给我看"。它出了箱子走过去，把那两个文件圈出来。', h: '能指的就不说。', run: function () {
+          drop('#res'); perch(document.getElementById('w1'), .8, 'sit');
+          var li = dsk.querySelectorAll('.files li'); li[0].classList.add('ring'); li[1].classList.add('ring'); } }
+    ] },
+    { name: '指着问', steps: [
+      { t: '你在看一份配置，选中了其中一行。', h: '选中的东西就是"这个"。', run: function () {
+          wnd('', 'settings.json', 8, 12, 56, 58, '<div class="code">{\n  "workbench.colorTheme": "Quiet Light",\n  <mark>"security.workspace.trust.untrustedFiles": "open",</mark>\n  "window.zoomLevel": 2,\n  "explorer.confirmDelete": false\n}</div>');
+          summon(82, 70, 'calm'); } },
+      { t: '按一下快捷键。光标旁边出来一行字，不是聊天窗口。', h: '它已经知道你选中了哪一行、在哪个文件里。', run: function () { pop('line', '<kbd>Ctrl Alt 空格</kbd><input value="这行是干嘛的" aria-label="问 ysoul" readonly>', 22, 35); pose('think'); } },
+      { t: '答案就贴在那一行下面。按 Esc 就没了。', h: '它没有出箱子，只是想了一下。', run: function () {
+          drop('.pop.line'); pose('calm');
+          pop('', '打开别人的文件夹时不再问你信不信任，直接开。<br>是你自己关的，大概是被问烦了。<div class="acts"><button>改回去</button><button>Esc</button></div>', 22, 35); } }
+    ] },
+    { name: '让它动手', steps: [
+      { t: '你叫出那一行字，说：把右键菜单里那两个金山 PDF 去掉。', h: '这是一件要改注册表的事。', run: function () { summon(78, 66, 'calm'); pop('line', '<kbd>Ctrl Alt 空格</kbd><input value="把右键里那两个金山 PDF 去掉" readonly aria-label="对 ysoul 说">', 44, 56); } },
+      { t: '它没有回一段话，而是递出一张票。', h: '票上写明做什么、在哪、动之前留了什么、要不要管理员。', run: function () {
+          drop('.pop.line'); pose('ask');
+          var p = pop('', '<h4>删掉 2 个右键菜单项</h4><dl><dt>在哪</dt><dd>注册表 · 文件的右键菜单</dd><dt>动之前</dt><dd>先把这两项导出存好，随时能放回去</dd><dt>权限</dt><dd>要管理员。脚本写好了，点"做"是你亲手运行</dd></dl><div class="acts"><button class="go" data-go>做</button><button>先让我看那两项</button><button>不做</button></div>', 48, 28);
+          p.id = 'ticket'; on(p, '[data-go]', 1); } },
+      { t: '你点了"做"。它出了箱子，走到注册表那里，开始干活。', h: '你能看见它在哪、在动什么。它干活有干活的样子。你可以接着干自己的。', run: function () {
+          var w = wnd('', '注册表编辑器', 6, 22, 40, 46, '<ul class="files"><li>*\\shellex\\ContextMenuHandlers</li><li>　7-Zip</li><li id="k1">　kpdfsdk_32bit</li><li id="k2">　kpdfsdk_64bit</li><li>　WinRAR</li></ul>');
+          perch(w, .78, 'work');
+          document.getElementById('ticket').querySelector('.acts').innerHTML = '<span class="dots">● ● ○</span> 正在导出备份';
+          whenIdle(function () { later(1800, function () { if (at === 2) advance(); }); }); } },
+      { t: '做完了。被它动过的那两项上留着爪印，票上只剩结果和"撤回"。', h: '反馈落在三处：动过的东西上、票上、箱子里。没有一句"好的已完成"。', run: function () {
+          act('joy', 200); later(1500, function () { act('sit', 400); });
+          ['k1', 'k2'].forEach(function (id) { var li = document.getElementById(id); li.classList.add('gone'); li.insertAdjacentHTML('beforeend', '<em>' + PAW + '</em>'); });
+          var p = document.getElementById('ticket'); p.querySelector('h4').textContent = '已删掉 2 个右键菜单项';
+          p.querySelector('.acts').innerHTML = '<button>撤回</button><button data-go>知道了</button>'; on(p, '[data-go]', 3); } },
+      { t: '票收进箱子。猫不一定回去，它留在那儿接着蹲着。', h: '箱子上的数字说明里面有一件刚做过的事。过几天想反悔，开箱子就能撤。', run: function () {
+          var p = document.getElementById('ticket'), r = rel(box); p.classList.add('fly'); p.style.left = r.x + '%'; p.style.top = r.y + '%'; later(750, function () { p.remove(); count(1); }); } }
+    ] },
+    { name: '到了才说', steps: [
+      { t: '它几天前就注意到一个仓库里有很多改动没提交。它当时什么也没说。', h: '这件事挂在"你下次到这个地方"上，不挂在钟点上。', run: function () { summon(82, 70, 'calm'); } },
+      { t: '今天你打开了那个文件夹。窗口上夹着一张条。', h: '条是夹在这个窗口上的，猫没动。你不理它，它就一直夹在那儿，不催。', run: function () {
+          var w = wnd('', '资源管理器 · dns-glue', 8, 24, 48, 50, '<ul class="files"><li>data<em>8月29日</em></li><li>scripts<em>8月29日</em></li><li>paper.tex<em>8月27日</em></li><li>notes.md<em>8月20日</em></li></ul>');
+          var t = el('div', 'tag', '这里有 156 处改动没提交。<br>上次提交是 8 月 29 日。<div class="acts"><button class="go" data-go>带我看</button><button>知道了</button><button>这种别提</button></div>'); w.appendChild(t); on(t, '[data-go]', 1); } },
+      { t: '你点"带我看"。它开了终端，走过去，把最要紧的那几行圈出来。', h: '"这种别提"会让它以后不再为这类事夹条。三个按钮都是一下就完，不用打字。', run: function () {
+          drop('.tag');
+          var w = wnd('term', 'PowerShell', 34, 42, 46, 44, '<span class="dim">PS dns-glue&gt;</span> git status --short | Measure-Object\nCount : 156\n\n<span class="hi"> M scripts/collect.ps1</span>\n<span class="hi"> M paper.tex</span>\n?? data/2026-09/  <span class="dim">(142 个文件)</span>');
+          ring(35, 58.5, 34, 11.5); perch(w, .86, 'sit'); } }
+    ] },
+    { name: '箱子和今天', steps: [
+      { t: '箱子下面有一小条，写着它认为你此刻在干什么。', h: '这是它"知道你在干什么"的凭据。说错了，点它改。', run: function () {
+          summon(72, 46, 'calm'); count(4); var r = rel(box); put(el('div', 'strip', '你在：<b>写文档</b> · SOUL/docs'), r.x - 1, r.y + r.h + .5); } },
+      { t: '点一下箱子，它摊开给你看。这里没有聊天记录。', h: '没说的话、等你点头的事、它惦记的、刚做过的，分开放。', run: function () {
+          count(0); pose('say');
+          var p = pop('wide', '<div class="tray"><section><h5>想说没说的 · 2</h5><ul><li>D 盘只剩两成了</li><li>有 6 个计划任务指向不存在的程序</li></ul></section><section><h5>等你点头的 · 1</h5><ul><li>停掉 2 个开机就失败的服务</li></ul></section><section><h5>惦记着的 · 3</h5><ul><li>那个 156 处没提交的仓库</li><li>pip 的源和信任主机对不上</li><li>答应过你：认完 D 盘剩下的目录</li></ul></section><section><h5>刚做过的 · 1</h5><ul><li>' + PAW + ' 删了 2 个右键菜单项 <button>撤回</button></li></ul></section><div class="foot"><button class="go" data-go>今天</button><button>聊聊</button><button>认家</button><button>你记了我什么</button><button>这阵子别出声</button></div></div>', 8, 8);
+          p.id = 'tray'; on(p, '[data-go]', 1); } },
+      { t: '点"今天"。它拉出一条带子，是它今天记下的一段段经历。', h: '爪印是它动过手的地方，黑点是它想说但忍住了的地方，斜纹是你不在。每一段都能点开。', run: function () {
+          drop('#tray'); pose('calm');
+          put(el('div', 'ribbon', '<b>今天</b><div class="track">' +
+            '<div class="seg" style="flex:14;background:#e3ecd2">写文档 <i>SOUL/docs</i></div>' +
+            '<div class="seg" style="flex:6;background:#dbe7f0">看网页<span class="hush"></span></div>' +
+            '<div class="seg away" style="flex:5"></div>' +
+            '<div class="seg" style="flex:18;background:#f4dfd6">改猫的交互 <i>SOUL/app</i>' + PAW + '</div>' +
+            '<div class="seg" style="flex:4;background:#eee6f4">终端</div>' +
+            '<div class="seg" style="flex:9;background:#e3ecd2">写文档<span class="hush"></span></div></div>' +
+            '<div class="key"><span>' + PAW + ' 它动过手</span><span><span class="hush" style="display:inline-block"></span> 想说但忍住了</span><span>斜纹：你不在</span></div>'), 4, 0).style.top = 'auto'; } }
+    ] },
+    { name: '认家', steps: [
+      { t: '这是它的"家的地图"：每个地方，它能看、能放、能改、能扔、能运行哪几样。', h: '"你说的"是你交代过的，"它猜的"还没问过你。没问过的地方，它只看不动。', run: function () {
+          var row = function (id, where, what, perms, src) { return '<tr' + (id ? ' id="' + id + '"' : '') + '><td>' + where + '</td><td>' + what + '</td>' + perms.split('').map(function (c) { return '<td class="' + (c === '1' ? 'y">✓' : 'n">–') + '</td>'; }).join('') + '<td class="src">' + src + '</td></tr>'; };
+          wnd('', '家的地图', 5, 22, 62, 58, '<table class="hmap"><tr><th>地方</th><th>是什么</th><th>看</th><th>放</th><th>改</th><th>扔</th><th>运行</th><th>依据</th></tr>' +
+            row('', 'D:\\SOUL', '它自己', '11111', '你说的') + row('r2', 'D:\\tools', '25 个小工具', '10000', '它猜的') + row('', 'D:\\DevData\\Temp', '临时文件', '11110', '它猜的') +
+            row('', 'D:\\personal', '私人的', '00000', '你说的') + row('', 'C:\\Windows', '系统', '10000', '它猜的') + row('', '注册表 · 右键菜单', '接线', '10100', '你说的 10-11') + '</table>').id = 'w1';
+          summon(82, 70, 'calm'); } },
+      { t: '它走到地图上，举着牌子，就其中一行问了你一个问题。', h: '它一次只问一行，而且先说自己的猜法。', run: function () {
+          perch(document.getElementById('w1'), .9, 'ask'); document.getElementById('r2').classList.add('lit');
+          var p = pop('', '<span class="k">D:\\tools</span> 里的小工具，我能直接运行吗？<br>我猜可以，但没问过你。<div class="acts"><button class="go" data-go>能</button><button>只看</button><button>用到再问</button></div>', 30, 66); p.id = 'q'; on(p, '[data-go]', 1); } },
+      { t: '你点了"能"。那一行改了，依据从"它猜的"变成"你说的"。', h: '问一次，地图长一点。地图本身是一份你能直接改的文件，这个窗口只是它的一种看法。', run: function () {
+          drop('#q'); var r = document.getElementById('r2'), td = r.querySelectorAll('td'); td[6].className = 'y'; td[6].textContent = '✓'; td[7].textContent = '你说的 10-11'; act('joy', 200); later(1500, function () { act('sit', 400); }); } }
+    ] },
+    { name: '终端里', steps: [
+      { t: '你正在终端里干活，不想把手从键盘上拿开。', h: '它在你常待的每个地方都有入口。', run: function () { wnd('term', 'PowerShell', 8, 24, 60, 54, '<span class="dim">PS D:\\&gt;</span> ').id = 'w1'; summon(82, 70, 'calm'); } },
+      { t: '直接敲 ys，后面跟一句话。', h: '它知道你现在在哪个目录。它走过来，在想。', run: function () { dsk.querySelector('.term .body').innerHTML = '<span class="dim">PS D:\\&gt;</span> ys 这盘怎么又只剩两成了'; perch(document.getElementById('w1'), .86, 'think'); } },
+      { t: '它就在终端里答，答完就完。', h: '同样的入口还有：资源管理器右键里的"交给 ysoul"，和你自己的 Claude Code。', run: function () {
+          act('sit'); dsk.querySelector('.term .body').innerHTML += '\n\n最占地方的三处：\n<span class="hi">  Docker 的数据      41 GB</span>\n<span class="hi">  聊天软件的数据目录  37 GB</span>\n<span class="hi">  npm 和 pip 的缓存   19 GB</span>\n\n第三处删了不影响任何东西。要我清吗？  <span class="dim">[y] 清  [n] 不清  [s] 先看看</span>'; } }
+    ] }
+  ];
+
+  function show(i) {
+    cur = i; at = -1; clear();
+    Array.prototype.forEach.call(tabs.children, function (b, k) { b.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+    advance();
+  }
+  function advance() {
+    var s = scenes[cur]; if (at >= s.steps.length - 1) return;
+    at += 1; var st = s.steps[at]; say(st.t, st.h); st.run();
+    nextBtn.disabled = at >= s.steps.length - 1;
+  }
+  scenes.forEach(function (s, i) { var b = el('button', '', (i + 1) + ' ' + s.name); b.setAttribute('role', 'tab'); b.addEventListener('click', function () { show(i); }); tabs.appendChild(b); });
+  // 供无头浏览器里的推演脚本调用
+  if (window.name === 'sim') window.__ys = { perch: function (i, f, th) { perch(dsk.querySelectorAll('.wnd')[i], f, th); }, floor: floor, idle: idle, at: function () { return rig ? rig.name + ' x=' + rig.fx.toFixed(1) + ' y=' + rig.gy.toFixed(1) + ' q=' + rig.queue.length + (rig.move ? ' ' + rig.move.kind : '') : 'none'; } };
+  nextBtn.addEventListener('click', advance);
+  document.getElementById('again').addEventListener('click', function () { show(cur); });
+
+  // 地址后面加 #3-2 可以直接跳到第 3 个场景的第 2 步；#1-1-hot 还能指定第一个场景里猫的状态。截图检查用
+  var m = /^#(\d+)-(\d)(?:-(\w+))?(?:@([\d.]+))?$/.exec(location.hash);
+  show(m ? Math.min(+m[1], scenes.length) - 1 : 0);
+  // 再加一种：#1-1-walk_sit@0.5 表示从 walk 滑到 sit 的中途（0 到 1），用来看过渡帧
+  if (m) { for (var k = 1; k < +m[2]; k++) advance(); if (m[3]) setTimeout(function () {
+    emerge(); rig.flip = false; var ab = m[3].split('_');
+    if (ab.length === 2) { kitty.setAttribute('data-s', ab[1]); rig.name = ab[1]; rig.last = blend(GEN[ab[0]](.3), GEN[ab[1]](.3), ease(+m[4])); draw(rig.last, .3); return; }
+    rig.testT = m[4] ? +m[4] : null; be(m[3], 0); }, 300); }
+}
+</script>
+<script src="skin.js" onload="ysoulBoot()" onerror="var s=document.createElement('script');s.src='../app/ui/skin.js';s.onload=ysoulBoot;document.head.appendChild(s)"></script>

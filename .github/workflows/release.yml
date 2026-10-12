@@ -1,0 +1,30 @@
+name: release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        shell: pwsh
+        run: |
+          cargo build --release --manifest-path runtime/Cargo.toml
+          cargo build --release --manifest-path app/src-tauri/Cargo.toml
+      - name: Assemble
+        shell: pwsh
+        run: |
+          $d = 'your-device-soul'
+          New-Item -ItemType Directory $d | Out-Null
+          Copy-Item runtime/target/release/ysoul.exe, app/src-tauri/target/release/ysoul-app.exe $d
+          Copy-Item memory, seed, prompts, sensors, design, docs, tools, assets -Destination $d -Recurse
+          Copy-Item README.md, README.zh-CN.md, LICENSE $d
+          Compress-Archive $d "your-device-soul-${{ github.ref_name }}-windows-x64.zip"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: your-device-soul-*.zip
+          generate_release_notes: true

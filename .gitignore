@@ -1,0 +1,31 @@
+# 只留本机、不进仓库的三样（见 docs/06-memory.md 第三节）
+/local/
+# 日记里原始的一行一行（窗口标题）只留在本机；每天的那几句总结在 memory/days/ 下，进仓库
+/memory/diary/
+
+# 构建产物与依赖
+/target/
+**/target/
+node_modules/
+dist/
+
+# 密钥与本机配置
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+
+# 系统与编辑器
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+.obsidian/workspace*
+
+# Tauri 生成的中间文件
+/app/src-tauri/gen/
+
+# 提权体检里天天在变的量
+/memory/body/admin/live-*

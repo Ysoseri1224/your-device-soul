@@ -1,0 +1,25 @@
+//! ysoul 的核心：记忆、两条模型通道、出生、一轮对话。命令行和桌面上的猫都用它。
+
+pub mod agent;
+pub mod apps;
+pub mod birth;
+pub mod channels;
+pub mod cheap;
+pub mod config;
+pub mod context;
+pub mod gate;
+pub mod gitmem;
+pub mod hands;
+pub mod marks;
+pub mod mcp;
+pub mod mind;
+pub mod outbound;
+pub mod paths;
+pub mod places;
+pub mod pulse;
+pub mod quiet;
+pub mod recall;
+pub mod sense;
+pub mod shell;
+pub mod strong;
+pub mod ui;

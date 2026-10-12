@@ -1,0 +1,181 @@
+<title>小黑猫画风选样</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,600&family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@600&display=swap">
+<style>
+/* 布局：四张卡片，每张把同一只猫按大、200、128、72 像素各画一次；最后一行是同一张脸的五种眼神 */
+:root{ --paper:#F4F0E6; --card:#EDE6D7; --fg:#1F1D1A; --muted:#6A655C; --line:#DAD3C4;
+  --cat:#1F1D1A; --white:#FFFDF6; --eye:#DFA63A; --ear:#C96A4B; --cut:#EDE6D7; --shadow:rgba(31,29,26,.12);
+  --serif:"Newsreader","Noto Serif SC","Songti SC","SimSun",serif; --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --paper:#1C1A17; --fg:#EEE8DB; --muted:#A39C8E; --line:#3A362F; color-scheme:dark } }
+:root[data-theme="dark"]{ --paper:#1C1A17; --fg:#EEE8DB; --muted:#A39C8E; --line:#3A362F; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.7;padding-inline:20px;padding-block:36px 64px}
+.wrap{max-width:1040px;margin-inline:auto;display:flex;flex-direction:column;gap:24px}
+h1,h2,p{margin:0}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4.4vw,38px);line-height:1.15}
+.lede{color:var(--muted);max-width:44em;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(460px,100%),1fr));gap:18px}
+.card{display:flex;flex-direction:column;gap:8px;min-width:0}
+.sizes,.faces{background:var(--card);border-radius:14px;padding:18px;display:flex;align-items:flex-end;justify-content:space-around;gap:10px;flex-wrap:wrap}
+.s{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.s.big{flex:1 1 150px;max-width:210px}
+.s span{font-size:11.5px;color:#6A655C}
+svg{display:block;height:auto;max-width:100%}
+.s.big svg{width:100%}
+.card h2{font-family:var(--serif);font-weight:600;font-size:21px;display:flex;align-items:baseline;gap:10px}
+.card h2 i{font-style:normal;font-family:var(--sans);font-size:12px;font-weight:500;border:1.5px solid currentColor;border-radius:50%;width:24px;height:24px;display:inline-grid;place-items:center;transform:translateY(-3px);flex:none}
+.card p{font-size:13.5px;color:var(--muted)}
+.faces .s{flex:1 1 110px;max-width:150px}
+.faces svg{width:100%}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec h2{font-family:var(--serif);font-weight:600;font-size:21px}
+.foot{font-size:13.5px;color:var(--muted);max-width:46em;border-top:1.5px solid var(--fg);padding-top:16px}
+</style>
+<div class="wrap">
+  <header>
+    <h1>简笔画的小黑猫</h1>
+    <p class="lede">回到简笔画：一种黑色，平涂，没有明暗、纹理、胡须和鼻子。头是平顶的，两耳之间不凸起；两侧和下巴是一条圆顺的弧线，没有尖角。细致放在曲线和比例上。每只都按 200、128、72 像素各画了一次，用来确认缩小后还清楚。</p>
+  </header>
+  <div class="grid">
+<section class="card">
+  <div class="sizes">
+    <div class="s big"><svg viewBox="-78 -61 176 210"  role="img" aria-label="小黑猫 扁而宽"><ellipse cx="6" cy="139" rx="67" ry="5" fill="var(--shadow)"/>
+    <path d="M33 128 C69 135 85 111 73 91 C68 83 58 87 61 95" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 25 C-31.98 49.64 -43 92.2 -41 128 Q-41 137 -32 137 L32 137 Q41 137 41 128 C43 92.2 31.98 49.64 19 25 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 89.96000000000001 V136" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-20 -27 L-43 -49 Q-51 -26.5 -50 -8 C-53 16.599999999999998 -28.999999999999996 33 0 33 C28.999999999999996 33 53 16.599999999999998 50 -8 Q51 -26.5 43 -49 L20 -27 Q0 -24.5 -20 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-38.5 -34 L-28 -26 L-43 -17 Z" fill="var(--ear)"/><path d="M38.5 -34 L28 -26 L43 -17 Z" fill="var(--ear)"/>
+    <circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="3" r="9" fill="var(--eye)"/><circle cx="-21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="-0.25" r="2.125" fill="var(--white)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="3" r="9" fill="var(--eye)"/><circle cx="21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="-0.25" r="2.125" fill="var(--white)"/></svg></div>
+    <div class="s"><svg viewBox="-78 -61 176 210" style="width:200px" role="img" aria-label="小黑猫 扁而宽"><ellipse cx="6" cy="139" rx="67" ry="5" fill="var(--shadow)"/>
+    <path d="M33 128 C69 135 85 111 73 91 C68 83 58 87 61 95" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 25 C-31.98 49.64 -43 92.2 -41 128 Q-41 137 -32 137 L32 137 Q41 137 41 128 C43 92.2 31.98 49.64 19 25 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 89.96000000000001 V136" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-20 -27 L-43 -49 Q-51 -26.5 -50 -8 C-53 16.599999999999998 -28.999999999999996 33 0 33 C28.999999999999996 33 53 16.599999999999998 50 -8 Q51 -26.5 43 -49 L20 -27 Q0 -24.5 -20 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-38.5 -34 L-28 -26 L-43 -17 Z" fill="var(--ear)"/><path d="M38.5 -34 L28 -26 L43 -17 Z" fill="var(--ear)"/>
+    <circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="3" r="9" fill="var(--eye)"/><circle cx="-21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="-0.25" r="2.125" fill="var(--white)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="3" r="9" fill="var(--eye)"/><circle cx="21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="-0.25" r="2.125" fill="var(--white)"/></svg><span>200</span></div>
+    <div class="s"><svg viewBox="-78 -61 176 210" style="width:128px" role="img" aria-label="小黑猫 扁而宽"><ellipse cx="6" cy="139" rx="67" ry="5" fill="var(--shadow)"/>
+    <path d="M33 128 C69 135 85 111 73 91 C68 83 58 87 61 95" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 25 C-31.98 49.64 -43 92.2 -41 128 Q-41 137 -32 137 L32 137 Q41 137 41 128 C43 92.2 31.98 49.64 19 25 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 89.96000000000001 V136" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-20 -27 L-43 -49 Q-51 -26.5 -50 -8 C-53 16.599999999999998 -28.999999999999996 33 0 33 C28.999999999999996 33 53 16.599999999999998 50 -8 Q51 -26.5 43 -49 L20 -27 Q0 -24.5 -20 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-38.5 -34 L-28 -26 L-43 -17 Z" fill="var(--ear)"/><path d="M38.5 -34 L28 -26 L43 -17 Z" fill="var(--ear)"/>
+    <circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="3" r="9" fill="var(--eye)"/><circle cx="-21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="-0.25" r="2.125" fill="var(--white)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="3" r="9" fill="var(--eye)"/><circle cx="21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="-0.25" r="2.125" fill="var(--white)"/></svg><span>128</span></div>
+    <div class="s"><svg viewBox="-78 -61 176 210" style="width:72px" role="img" aria-label="小黑猫 扁而宽"><ellipse cx="6" cy="139" rx="67" ry="5" fill="var(--shadow)"/>
+    <path d="M33 128 C69 135 85 111 73 91 C68 83 58 87 61 95" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 25 C-31.98 49.64 -43 92.2 -41 128 Q-41 137 -32 137 L32 137 Q41 137 41 128 C43 92.2 31.98 49.64 19 25 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 89.96000000000001 V136" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-20 -27 L-43 -49 Q-51 -26.5 -50 -8 C-53 16.599999999999998 -28.999999999999996 33 0 33 C28.999999999999996 33 53 16.599999999999998 50 -8 Q51 -26.5 43 -49 L20 -27 Q0 -24.5 -20 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-38.5 -34 L-28 -26 L-43 -17 Z" fill="var(--ear)"/><path d="M38.5 -34 L28 -26 L43 -17 Z" fill="var(--ear)"/>
+    <circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="3" r="9" fill="var(--eye)"/><circle cx="-21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="-0.25" r="2.125" fill="var(--white)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="3" r="9" fill="var(--eye)"/><circle cx="21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="-0.25" r="2.125" fill="var(--white)"/></svg><span>72</span></div>
+  </div>
+  <h2><i>1</i>扁而宽</h2>
+  <p>最接近第一版：脸很宽、很扁，小耳朵长在两头。</p>
+</section>
+<section class="card">
+  <div class="sizes">
+    <div class="s big"><svg viewBox="-78 -68 176 218"  role="img" aria-label="小黑猫 圆一点"><ellipse cx="6" cy="140" rx="66" ry="5" fill="var(--shadow)"/>
+    <path d="M32 129 C68 136 84 112 72 92 C67 84 57 88 60 96" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 30 C-31.200000000000003 53.760000000000005 -42 94.8 -40 129 Q-40 138 -31 138 L31 138 Q40 138 40 129 C42 94.8 31.200000000000003 53.760000000000005 19 30 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 92.64 V137" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-17 -31 L-40 -56 Q-47 -30.5 -46 -9 C-49 19.2 -26.68 38 0 38 C26.68 38 49 19.2 46 -9 Q47 -30.5 40 -56 L17 -31 Q0 -28.5 -17 -31 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-35.5 -41 L-25 -30 L-39 -18 Z" fill="var(--ear)"/><path d="M35.5 -41 L25 -30 L39 -18 Z" fill="var(--ear)"/>
+    <circle cx="-19.5" cy="2" r="12.5" fill="var(--white)"/><circle cx="-19.5" cy="2" r="9" fill="var(--eye)"/><circle cx="-19.5" cy="2" r="5.25" fill="var(--cat)"/><circle cx="-16.25" cy="-1.25" r="2.125" fill="var(--white)"/><circle cx="19.5" cy="2" r="12.5" fill="var(--white)"/><circle cx="19.5" cy="2" r="9" fill="var(--eye)"/><circle cx="19.5" cy="2" r="5.25" fill="var(--cat)"/><circle cx="22.75" cy="-1.25" r="2.125" fill="var(--white)"/></svg></div>
+    <div class="s"><svg viewBox="-78 -68 176 218" style="width:200px" role="img" aria-label="小黑猫 圆一点"><ellipse cx="6" cy="140" rx="66" ry="5" fill="var(--shadow)"/>
+    <path d="M32 129 C68 136 84 112 72 92 C67 84 57 88 60 96" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 30 C-31.200000000000003 53.760000000000005 -42 94.8 -40 129 Q-40 138 -31 138 L31 138 Q40 138 40 129 C42 94.8 31.200000000000003 53.760000000000005 19 30 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 92.64 V137" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-17 -31 L-40 -56 Q-47 -30.5 -46 -9 C-49 19.2 -26.68 38 0 38 C26.68 38 49 19.2 46 -9 Q47 -30.5 40 -56 L17 -31 Q0 -28.5 -17 -31 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-35.5 -41 L-25 -30 L-39 -18 Z" fill="var(--ear)"/><path d="M35.5 -41 L25 -30 L39 -18 Z" fill="var(--ear)"/>
+    <circle cx="-19.5" cy="2" r="12.5" fill="var(--white)"/><circle cx="-19.5" cy="2" r="9" fill="var(--eye)"/><circle cx="-19.5" cy="2" r="5.25" fill="var(--cat)"/><circle cx="-16.25" cy="-1.25" r="2.125" fill="var(--white)"/><circle cx="19.5" cy="2" r="12.5" fill="var(--white)"/><circle cx="19.5" cy="2" r="9" fill="var(--eye)"/><circle cx="19.5" cy="2" r="5.25" fill="var(--cat)"/><circle cx="22.75" cy="-1.25" r="2.125" fill="var(--white)"/></svg><span>200</span></div>
+    <div class="s"><svg viewBox="-78 -68 176 218" style="width:128px" role="img" aria-label="小黑猫 圆一点"><ellipse cx="6" cy="140" rx="66" ry="5" fill="var(--shadow)"/>
+    <path d="M32 129 C68 136 84 112 72 92 C67 84 57 88 60 96" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 30 C-31.200000000000003 53.760000000000005 -42 94.8 -40 129 Q-40 138 -31 138 L31 138 Q40 138 40 129 C42 94.8 31.200000000000003 53.760000000000005 19 30 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 92.64 V137" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-17 -31 L-40 -56 Q-47 -30.5 -46 -9 C-49 19.2 -26.68 38 0 38 C26.68 38 49 19.2 46 -9 Q47 -30.5 40 -56 L17 -31 Q0 -28.5 -17 -31 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-35.5 -41 L-25 -30 L-39 -18 Z" fill="var(--ear)"/><path d="M35.5 -41 L25 -30 L39 -18 Z" fill="var(--ear)"/>
+    <circle cx="-19.5" cy="2" r="12.5" fill="var(--white)"/><circle cx="-19.5" cy="2" r="9" fill="var(--eye)"/><circle cx="-19.5" cy="2" r="5.25" fill="var(--cat)"/><circle cx="-16.25" cy="-1.25" r="2.125" fill="var(--white)"/><circle cx="19.5" cy="2" r="12.5" fill="var(--white)"/><circle cx="19.5" cy="2" r="9" fill="var(--eye)"/><circle cx="19.5" cy="2" r="5.25" fill="var(--cat)"/><circle cx="22.75" cy="-1.25" r="2.125" fill="var(--white)"/></svg><span>128</span></div>
+    <div class="s"><svg viewBox="-78 -68 176 218" style="width:72px" role="img" aria-label="小黑猫 圆一点"><ellipse cx="6" cy="140" rx="66" ry="5" fill="var(--shadow)"/>
+    <path d="M32 129 C68 136 84 112 72 92 C67 84 57 88 60 96" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 30 C-31.200000000000003 53.760000000000005 -42 94.8 -40 129 Q-40 138 -31 138 L31 138 Q40 138 40 129 C42 94.8 31.200000000000003 53.760000000000005 19 30 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 92.64 V137" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-17 -31 L-40 -56 Q-47 -30.5 -46 -9 C-49 19.2 -26.68 38 0 38 C26.68 38 49 19.2 46 -9 Q47 -30.5 40 -56 L17 -31 Q0 -28.5 -17 -31 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-35.5 -41 L-25 -30 L-39 -18 Z" fill="var(--ear)"/><path d="M35.5 -41 L25 -30 L39 -18 Z" fill="var(--ear)"/>
+    <circle cx="-19.5" cy="2" r="12.5" fill="var(--white)"/><circle cx="-19.5" cy="2" r="9" fill="var(--eye)"/><circle cx="-19.5" cy="2" r="5.25" fill="var(--cat)"/><circle cx="-16.25" cy="-1.25" r="2.125" fill="var(--white)"/><circle cx="19.5" cy="2" r="12.5" fill="var(--white)"/><circle cx="19.5" cy="2" r="9" fill="var(--eye)"/><circle cx="19.5" cy="2" r="5.25" fill="var(--cat)"/><circle cx="22.75" cy="-1.25" r="2.125" fill="var(--white)"/></svg><span>72</span></div>
+  </div>
+  <h2><i>2</i>圆一点</h2>
+  <p>脸没那么扁，更接近一个圆；耳朵略大一点。</p>
+</section>
+<section class="card">
+  <div class="sizes">
+    <div class="s big"><svg viewBox="-78 -75 176 224"  role="img" aria-label="小黑猫 扁，耳朵大"><ellipse cx="6" cy="139" rx="67" ry="5" fill="var(--shadow)"/>
+    <path d="M33 128 C69 135 85 111 73 91 C68 83 58 87 61 95" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 25 C-31.98 49.64 -43 92.2 -41 128 Q-41 137 -32 137 L32 137 Q41 137 41 128 C43 92.2 31.98 49.64 19 25 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 89.96000000000001 V136" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-14 -27 L-45 -63 Q-51 -33 -50 -7 C-53 17 -28.999999999999996 33 0 33 C28.999999999999996 33 53 17 50 -7 Q51 -33 45 -63 L14 -27 Q0 -24.5 -14 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-40.5 -48 L-22 -26 L-43 -16 Z" fill="var(--ear)"/><path d="M40.5 -48 L22 -26 L43 -16 Z" fill="var(--ear)"/>
+    <circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="3" r="9" fill="var(--eye)"/><circle cx="-21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="-0.25" r="2.125" fill="var(--white)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="3" r="9" fill="var(--eye)"/><circle cx="21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="-0.25" r="2.125" fill="var(--white)"/></svg></div>
+    <div class="s"><svg viewBox="-78 -75 176 224" style="width:200px" role="img" aria-label="小黑猫 扁，耳朵大"><ellipse cx="6" cy="139" rx="67" ry="5" fill="var(--shadow)"/>
+    <path d="M33 128 C69 135 85 111 73 91 C68 83 58 87 61 95" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 25 C-31.98 49.64 -43 92.2 -41 128 Q-41 137 -32 137 L32 137 Q41 137 41 128 C43 92.2 31.98 49.64 19 25 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 89.96000000000001 V136" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-14 -27 L-45 -63 Q-51 -33 -50 -7 C-53 17 -28.999999999999996 33 0 33 C28.999999999999996 33 53 17 50 -7 Q51 -33 45 -63 L14 -27 Q0 -24.5 -14 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-40.5 -48 L-22 -26 L-43 -16 Z" fill="var(--ear)"/><path d="M40.5 -48 L22 -26 L43 -16 Z" fill="var(--ear)"/>
+    <circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="3" r="9" fill="var(--eye)"/><circle cx="-21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="-0.25" r="2.125" fill="var(--white)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="3" r="9" fill="var(--eye)"/><circle cx="21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="-0.25" r="2.125" fill="var(--white)"/></svg><span>200</span></div>
+    <div class="s"><svg viewBox="-78 -75 176 224" style="width:128px" role="img" aria-label="小黑猫 扁，耳朵大"><ellipse cx="6" cy="139" rx="67" ry="5" fill="var(--shadow)"/>
+    <path d="M33 128 C69 135 85 111 73 91 C68 83 58 87 61 95" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 25 C-31.98 49.64 -43 92.2 -41 128 Q-41 137 -32 137 L32 137 Q41 137 41 128 C43 92.2 31.98 49.64 19 25 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 89.96000000000001 V136" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-14 -27 L-45 -63 Q-51 -33 -50 -7 C-53 17 -28.999999999999996 33 0 33 C28.999999999999996 33 53 17 50 -7 Q51 -33 45 -63 L14 -27 Q0 -24.5 -14 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-40.5 -48 L-22 -26 L-43 -16 Z" fill="var(--ear)"/><path d="M40.5 -48 L22 -26 L43 -16 Z" fill="var(--ear)"/>
+    <circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="3" r="9" fill="var(--eye)"/><circle cx="-21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="-0.25" r="2.125" fill="var(--white)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="3" r="9" fill="var(--eye)"/><circle cx="21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="-0.25" r="2.125" fill="var(--white)"/></svg><span>128</span></div>
+    <div class="s"><svg viewBox="-78 -75 176 224" style="width:72px" role="img" aria-label="小黑猫 扁，耳朵大"><ellipse cx="6" cy="139" rx="67" ry="5" fill="var(--shadow)"/>
+    <path d="M33 128 C69 135 85 111 73 91 C68 83 58 87 61 95" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-19 25 C-31.98 49.64 -43 92.2 -41 128 Q-41 137 -32 137 L32 137 Q41 137 41 128 C43 92.2 31.98 49.64 19 25 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 89.96000000000001 V136" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-14 -27 L-45 -63 Q-51 -33 -50 -7 C-53 17 -28.999999999999996 33 0 33 C28.999999999999996 33 53 17 50 -7 Q51 -33 45 -63 L14 -27 Q0 -24.5 -14 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-40.5 -48 L-22 -26 L-43 -16 Z" fill="var(--ear)"/><path d="M40.5 -48 L22 -26 L43 -16 Z" fill="var(--ear)"/>
+    <circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="3" r="9" fill="var(--eye)"/><circle cx="-21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="-0.25" r="2.125" fill="var(--white)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="3" r="9" fill="var(--eye)"/><circle cx="21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="-0.25" r="2.125" fill="var(--white)"/></svg><span>72</span></div>
+  </div>
+  <h2><i>3</i>扁，耳朵大</h2>
+  <p>和 1 一样扁，耳朵更高、更宽，看着更机灵。</p>
+</section>
+<section class="card">
+  <div class="sizes">
+    <div class="s big"><svg viewBox="-78 -57 176 218"  role="img" aria-label="小黑猫 小脸，身子长"><ellipse cx="6" cy="151" rx="65" ry="5" fill="var(--shadow)"/>
+    <path d="M31 140 C67 147 83 123 71 103 C66 95 56 99 59 107" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-17 21 C-30.42 49.16 -41 97.8 -39 140 Q-39 149 -30 149 L30 149 Q39 149 39 140 C41 97.8 30.42 49.16 17 21 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 95.24000000000001 V148" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-16 -24 L-36 -45 Q-43 -24 -42 -7 C-45 14.599999999999998 -24.36 29 0 29 C24.36 29 45 14.599999999999998 42 -7 Q43 -24 36 -45 L16 -24 Q0 -21.5 -16 -24 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-31.5 -30 L-24 -23 L-35 -16 Z" fill="var(--ear)"/><path d="M31.5 -30 L24 -23 L35 -16 Z" fill="var(--ear)"/>
+    <circle cx="-17.5" cy="3" r="10.5" fill="var(--white)"/><circle cx="-17.5" cy="3" r="7.56" fill="var(--eye)"/><circle cx="-17.5" cy="3" r="4.41" fill="var(--cat)"/><circle cx="-14.77" cy="0.27" r="1.7850000000000001" fill="var(--white)"/><circle cx="17.5" cy="3" r="10.5" fill="var(--white)"/><circle cx="17.5" cy="3" r="7.56" fill="var(--eye)"/><circle cx="17.5" cy="3" r="4.41" fill="var(--cat)"/><circle cx="20.23" cy="0.27" r="1.7850000000000001" fill="var(--white)"/></svg></div>
+    <div class="s"><svg viewBox="-78 -57 176 218" style="width:200px" role="img" aria-label="小黑猫 小脸，身子长"><ellipse cx="6" cy="151" rx="65" ry="5" fill="var(--shadow)"/>
+    <path d="M31 140 C67 147 83 123 71 103 C66 95 56 99 59 107" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-17 21 C-30.42 49.16 -41 97.8 -39 140 Q-39 149 -30 149 L30 149 Q39 149 39 140 C41 97.8 30.42 49.16 17 21 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 95.24000000000001 V148" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-16 -24 L-36 -45 Q-43 -24 -42 -7 C-45 14.599999999999998 -24.36 29 0 29 C24.36 29 45 14.599999999999998 42 -7 Q43 -24 36 -45 L16 -24 Q0 -21.5 -16 -24 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-31.5 -30 L-24 -23 L-35 -16 Z" fill="var(--ear)"/><path d="M31.5 -30 L24 -23 L35 -16 Z" fill="var(--ear)"/>
+    <circle cx="-17.5" cy="3" r="10.5" fill="var(--white)"/><circle cx="-17.5" cy="3" r="7.56" fill="var(--eye)"/><circle cx="-17.5" cy="3" r="4.41" fill="var(--cat)"/><circle cx="-14.77" cy="0.27" r="1.7850000000000001" fill="var(--white)"/><circle cx="17.5" cy="3" r="10.5" fill="var(--white)"/><circle cx="17.5" cy="3" r="7.56" fill="var(--eye)"/><circle cx="17.5" cy="3" r="4.41" fill="var(--cat)"/><circle cx="20.23" cy="0.27" r="1.7850000000000001" fill="var(--white)"/></svg><span>200</span></div>
+    <div class="s"><svg viewBox="-78 -57 176 218" style="width:128px" role="img" aria-label="小黑猫 小脸，身子长"><ellipse cx="6" cy="151" rx="65" ry="5" fill="var(--shadow)"/>
+    <path d="M31 140 C67 147 83 123 71 103 C66 95 56 99 59 107" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-17 21 C-30.42 49.16 -41 97.8 -39 140 Q-39 149 -30 149 L30 149 Q39 149 39 140 C41 97.8 30.42 49.16 17 21 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 95.24000000000001 V148" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-16 -24 L-36 -45 Q-43 -24 -42 -7 C-45 14.599999999999998 -24.36 29 0 29 C24.36 29 45 14.599999999999998 42 -7 Q43 -24 36 -45 L16 -24 Q0 -21.5 -16 -24 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-31.5 -30 L-24 -23 L-35 -16 Z" fill="var(--ear)"/><path d="M31.5 -30 L24 -23 L35 -16 Z" fill="var(--ear)"/>
+    <circle cx="-17.5" cy="3" r="10.5" fill="var(--white)"/><circle cx="-17.5" cy="3" r="7.56" fill="var(--eye)"/><circle cx="-17.5" cy="3" r="4.41" fill="var(--cat)"/><circle cx="-14.77" cy="0.27" r="1.7850000000000001" fill="var(--white)"/><circle cx="17.5" cy="3" r="10.5" fill="var(--white)"/><circle cx="17.5" cy="3" r="7.56" fill="var(--eye)"/><circle cx="17.5" cy="3" r="4.41" fill="var(--cat)"/><circle cx="20.23" cy="0.27" r="1.7850000000000001" fill="var(--white)"/></svg><span>128</span></div>
+    <div class="s"><svg viewBox="-78 -57 176 218" style="width:72px" role="img" aria-label="小黑猫 小脸，身子长"><ellipse cx="6" cy="151" rx="65" ry="5" fill="var(--shadow)"/>
+    <path d="M31 140 C67 147 83 123 71 103 C66 95 56 99 59 107" fill="none" stroke="var(--cat)" stroke-width="10.5" stroke-linecap="round"/>
+    <path d="M-17 21 C-30.42 49.16 -41 97.8 -39 140 Q-39 149 -30 149 L30 149 Q39 149 39 140 C41 97.8 30.42 49.16 17 21 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 95.24000000000001 V148" stroke="var(--cut)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-16 -24 L-36 -45 Q-43 -24 -42 -7 C-45 14.599999999999998 -24.36 29 0 29 C24.36 29 45 14.599999999999998 42 -7 Q43 -24 36 -45 L16 -24 Q0 -21.5 -16 -24 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-31.5 -30 L-24 -23 L-35 -16 Z" fill="var(--ear)"/><path d="M31.5 -30 L24 -23 L35 -16 Z" fill="var(--ear)"/>
+    <circle cx="-17.5" cy="3" r="10.5" fill="var(--white)"/><circle cx="-17.5" cy="3" r="7.56" fill="var(--eye)"/><circle cx="-17.5" cy="3" r="4.41" fill="var(--cat)"/><circle cx="-14.77" cy="0.27" r="1.7850000000000001" fill="var(--white)"/><circle cx="17.5" cy="3" r="10.5" fill="var(--white)"/><circle cx="17.5" cy="3" r="7.56" fill="var(--eye)"/><circle cx="17.5" cy="3" r="4.41" fill="var(--cat)"/><circle cx="20.23" cy="0.27" r="1.7850000000000001" fill="var(--white)"/></svg><span>72</span></div>
+  </div>
+  <h2><i>4</i>小脸，身子长</h2>
+  <p>头小一号，身子更长更细，最接近真猫的头身比。</p>
+</section>
+  </div>
+  <div class="sec">
+    <h2>同一张脸的五种眼神（以 1 为例）</h2>
+    <div class="faces"><div class="s"><svg viewBox="-62 -57 124 100" role="img" aria-label="表情"><path d="M-20 -27 L-43 -49 Q-51 -26.5 -50 -8 C-53 16.599999999999998 -28.999999999999996 33 0 33 C28.999999999999996 33 53 16.599999999999998 50 -8 Q51 -26.5 43 -49 L20 -27 Q0 -24.5 -20 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/><path d="M-38.5 -34 L-28 -26 L-43 -17 Z" fill="var(--ear)"/><path d="M38.5 -34 L28 -26 L43 -17 Z" fill="var(--ear)"/><circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="3" r="9" fill="var(--eye)"/><circle cx="-21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="-0.25" r="2.125" fill="var(--white)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="3" r="9" fill="var(--eye)"/><circle cx="21" cy="3" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="-0.25" r="2.125" fill="var(--white)"/></svg><span>睁眼</span></div><div class="s"><svg viewBox="-62 -57 124 100" role="img" aria-label="表情"><path d="M-20 -27 L-43 -49 Q-51 -26.5 -50 -8 C-53 16.599999999999998 -28.999999999999996 33 0 33 C28.999999999999996 33 53 16.599999999999998 50 -8 Q51 -26.5 43 -49 L20 -27 Q0 -24.5 -20 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/><path d="M-38.5 -34 L-28 -26 L-43 -17 Z" fill="var(--ear)"/><path d="M38.5 -34 L28 -26 L43 -17 Z" fill="var(--ear)"/><circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-21" cy="4.5" r="9" fill="var(--eye)"/><circle cx="-21" cy="4.5" r="5.25" fill="var(--cat)"/><circle cx="-17.75" cy="2.25" r="2.125" fill="var(--white)"/><path d="M-35.5 -11.5 H-6.5 V1 H-35.5 Z" fill="var(--cat)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="21" cy="4.5" r="9" fill="var(--eye)"/><circle cx="21" cy="4.5" r="5.25" fill="var(--cat)"/><circle cx="24.25" cy="2.25" r="2.125" fill="var(--white)"/><path d="M6.5 -11.5 H35.5 V1 H6.5 Z" fill="var(--cat)"/></svg><span>眼皮垂下</span></div><div class="s"><svg viewBox="-62 -57 124 100" role="img" aria-label="表情"><path d="M-20 -27 L-43 -49 Q-51 -26.5 -50 -8 C-53 16.599999999999998 -28.999999999999996 33 0 33 C28.999999999999996 33 53 16.599999999999998 50 -8 Q51 -26.5 43 -49 L20 -27 Q0 -24.5 -20 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/><path d="M-38.5 -34 L-28 -26 L-43 -17 Z" fill="var(--ear)"/><path d="M38.5 -34 L28 -26 L43 -17 Z" fill="var(--ear)"/><circle cx="-21" cy="3" r="12.5" fill="var(--white)"/><circle cx="-24.6" cy="5.5" r="9" fill="var(--eye)"/><circle cx="-24.6" cy="5.5" r="5.25" fill="var(--cat)"/><circle cx="-21.35" cy="3.25" r="2.125" fill="var(--white)"/><path d="M-35.5 -11.5 H-6.5 V-2 H-35.5 Z" fill="var(--cat)"/><circle cx="21" cy="3" r="12.5" fill="var(--white)"/><circle cx="17.4" cy="5.5" r="9" fill="var(--eye)"/><circle cx="17.4" cy="5.5" r="5.25" fill="var(--cat)"/><circle cx="20.65" cy="3.25" r="2.125" fill="var(--white)"/><path d="M6.5 -11.5 H35.5 V-2 H6.5 Z" fill="var(--cat)"/></svg><span>斜眼看</span></div><div class="s"><svg viewBox="-62 -57 124 100" role="img" aria-label="表情"><path d="M-20 -27 L-43 -49 Q-51 -26.5 -50 -8 C-53 16.599999999999998 -28.999999999999996 33 0 33 C28.999999999999996 33 53 16.599999999999998 50 -8 Q51 -26.5 43 -49 L20 -27 Q0 -24.5 -20 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/><path d="M-38.5 -34 L-28 -26 L-43 -17 Z" fill="var(--ear)"/><path d="M38.5 -34 L28 -26 L43 -17 Z" fill="var(--ear)"/><circle cx="-21" cy="3" r="14.000000000000002" fill="var(--white)"/><circle cx="-21" cy="3" r="10.08" fill="var(--eye)"/><circle cx="-21" cy="3" r="3.5000000000000004" fill="var(--cat)"/><circle cx="-17.36" cy="-0.6400000000000006" r="2.3800000000000003" fill="var(--white)"/><circle cx="21" cy="3" r="14.000000000000002" fill="var(--white)"/><circle cx="21" cy="3" r="10.08" fill="var(--eye)"/><circle cx="21" cy="3" r="3.5000000000000004" fill="var(--cat)"/><circle cx="24.64" cy="-0.6400000000000006" r="2.3800000000000003" fill="var(--white)"/></svg><span>瞪大</span></div><div class="s"><svg viewBox="-62 -57 124 100" role="img" aria-label="表情"><path d="M-20 -27 L-43 -49 Q-51 -26.5 -50 -8 C-53 16.599999999999998 -28.999999999999996 33 0 33 C28.999999999999996 33 53 16.599999999999998 50 -8 Q51 -26.5 43 -49 L20 -27 Q0 -24.5 -20 -27 Z" fill="var(--cat)" stroke="var(--cat)" stroke-width="5" stroke-linejoin="round"/><path d="M-38.5 -34 L-28 -26 L-43 -17 Z" fill="var(--ear)"/><path d="M38.5 -34 L28 -26 L43 -17 Z" fill="var(--ear)"/><path d="M-31 4 Q-21 -6.375 -11 4" fill="none" stroke="var(--eye)" stroke-width="3.25" stroke-linecap="round"/><path d="M11 4 Q21 -6.375 31 4" fill="none" stroke="var(--eye)" stroke-width="3.25" stroke-linecap="round"/></svg><span>眯成一条</span></div></div>
+  </div>
+  <p class="foot">这四只画法相同，只有头的宽扁、耳朵的大小和头身比不同。指一个，或者说"1 的头再圆一点""耳朵再小一点"这样的调整。</p>
+</div>

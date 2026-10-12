@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ysoul · 设置</title>
+<style>
+  :root { --paper: #F4F0E6; --wash: #FFFDF8; --ink: #1F1D1A; --muted: #6A655C; --line: #DAD3C4; --clay: #C96A4B; --olive: #7F8E60;
+    --serif: "Noto Serif SC", "Songti SC", "SimSun", serif; --sans: "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  html { scrollbar-gutter: stable; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.7 var(--sans); }
+  main { max-width: 760px; margin: 0 auto; padding-block: 26px 40px; padding-inline: 24px; display: flex; flex-direction: column; gap: 18px; }
+  h1 { font: 600 26px var(--serif); margin: 0; }
+  h2 { font: 600 18px var(--serif); margin: 0 0 2px; }
+  p { margin: 0; }
+  .lead { color: var(--muted); }
+  section { background: var(--wash); border: 1.5px solid var(--ink); border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .why { color: var(--muted); font-size: 13.5px; }
+  input[type=text], textarea { font: inherit; color: var(--ink); background: #fff; border: 1.5px solid var(--ink); border-radius: 8px; padding: 6px 10px; width: 100%; }
+  textarea { min-height: 110px; resize: vertical; font-family: "Cascadia Mono", Consolas, monospace; font-size: 13.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button, .row button, footer button { font: inherit; font-size: 14px; background: var(--wash); border: 1.5px solid var(--ink); border-radius: 8px; padding: 2px 11px; cursor: pointer; color: var(--ink); }
+  .chips button.on { background: var(--ink); color: var(--wash); }
+  .list { display: flex; flex-direction: column; gap: 4px; max-height: 250px; overflow-y: auto; }
+  .row { display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; background: #fff; }
+  .row b { font-weight: 600; overflow-wrap: anywhere; }
+  .row small { color: var(--muted); }
+  .row .n { width: 26px; height: 26px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); display: grid; place-items: center; font-size: 13px; }
+  .row.strong .n { background: var(--clay); color: #fff; border-color: var(--ink); }
+  .row button.on { background: var(--olive); color: #fff; }
+  footer { display: flex; align-items: center; gap: 12px; }
+  footer button { background: var(--clay); color: #fff; padding: 6px 22px; font-size: 16px; }
+  #saved { color: var(--olive); }
+  code { background: var(--paper); border: 1px solid var(--line); border-radius: 5px; padding: 0 5px; font-size: 13px; }
+  a { color: var(--clay); }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>先认识一下</h1>
+    <p class="lead">这几样定下来，它就可以在这台机器上住下了。以后从托盘图标的菜单里随时能再打开这一页。</p>
+  </div>
+
+  <section>
+    <h2>它怎么称呼你</h2>
+    <input type="text" id="owner" placeholder="一个你愿意被叫的名字" maxlength="24">
+    <p class="why">只用来称呼。你的真实姓名、邮箱、账号这些，它的规矩是不猜、不记、不提。</p>
+  </section>
+
+  <section>
+    <h2>哪些目录是私人的</h2>
+    <p class="why">写在这里的目录，它连看都不能看，由程序拦着。下面是各个盘上的顶层目录，点一下就加进去；也可以自己写，一行一个完整路径。你亲手交给它的那一件（右键、拖进来、话里写了路径）不受限制。</p>
+    <div class="chips" id="suggest"></div>
+    <textarea id="private" spellcheck="false"></textarea>
+  </section>
+
+  <section>
+    <h2>它用哪个模型想事情</h2>
+    <p class="why">这是在这台机器上发现的通道：本机的 Claude Code、<a href="https://github.com/farion1231/cc-switch" target="_blank">cc-switch</a> 里配过的供应商、环境变量里的密钥、本机的 Ollama。点左边的圆圈定次序：1 最先用，问不通就换 2。跑腿的那条用来干小活（从笔记目录里挑一份之类），挑一条便宜的。密钥不会被存下来，存的只是"用哪一条"。</p>
+    <div class="list" id="channels"></div>
+    <p class="why" id="nochannel" hidden>一条都没发现。最省事的办法：装一个 cc-switch，在里面配一条供应商（它支持各家的入口和密钥），再回到这里点"重新找"。或者设好 <code>OPENAI_API_KEY</code>、<code>ANTHROPIC_API_KEY</code> 这样的环境变量。</p>
+    <div><button id="rescan" class="chips" style="font:inherit;font-size:14px;background:var(--wash);border:1.5px solid var(--ink);border-radius:8px;padding:2px 11px;cursor:pointer">重新找</button></div>
+  </section>
+
+  <footer>
+    <button id="save">就这样</button>
+    <span id="saved" hidden>存好了。它在桌面右下角的箱子里。</span>
+  </footer>
+</main>
+<script>
+(function () {
+  'use strict';
+  var T = window.__TAURI__ || null, $ = function (id) { return document.getElementById(id); };
+  var strong = [], cheap = null, all = [];
+  function lines() { return $('private').value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean); }
+  function drawSuggest(dirs) {
+    var box = $('suggest'); box.textContent = '';
+    dirs.forEach(function (d) {
+      var b = document.createElement('button'); b.textContent = d; b.className = lines().indexOf(d) >= 0 ? 'on' : '';
+      b.onclick = function () { var cur = lines(), i = cur.indexOf(d); if (i >= 0) cur.splice(i, 1); else cur.push(d); $('private').value = cur.join('\n'); drawSuggest(dirs); };
+      box.appendChild(b);
+    });
+  }
+  function drawChannels() {
+    var box = $('channels'); box.textContent = ''; $('nochannel').hidden = all.length > 0;
+    all.forEach(function (c) {
+      var row = document.createElement('div'), n = strong.indexOf(c.id); row.className = 'row' + (n >= 0 ? ' strong' : '');
+      var num = document.createElement('button'); num.className = 'n'; num.textContent = n >= 0 ? n + 1 : ''; num.title = '点一下：排进强模型的次序，或者拿出来';
+      num.onclick = function () { var i = strong.indexOf(c.id); if (i >= 0) strong.splice(i, 1); else strong.push(c.id); drawChannels(); };
+      var name = document.createElement('b'); name.textContent = c.name;
+      var src = document.createElement('small'); src.textContent = c.source;
+      var ch = document.createElement('button'); ch.textContent = '跑腿'; ch.className = cheap === c.id ? 'on' : ''; ch.hidden = c.wire === 'ClaudeCode';
+      ch.onclick = function () { cheap = cheap === c.id ? null : c.id; drawChannels(); };
+      row.appendChild(num); row.appendChild(name); row.appendChild(src); row.appendChild(ch); box.appendChild(row);
+    });
+  }
+  function load() {
+    if (!T) {     // 不带后端的预览
+      $('owner').value = ''; drawSuggest(['D:\\photos', 'D:\\work', 'D:\\Downloads', 'C:\\Users']);
+      all = [{ id: 'claude-code', name: 'Claude Code（用它登录的那个账号）', source: 'claude 命令', wire: 'ClaudeCode' }, { id: 'a', name: 'DeepSeek（deepseek-chat）', source: 'cc-switch', wire: 'Anthropic' }, { id: 'b', name: '本机 Ollama（qwen3）', source: 'Ollama', wire: 'OpenAI' }]; strong = ['claude-code', 'a']; cheap = 'b'; drawChannels(); return;
+    }
+    T.core.invoke('setup_load').then(function (s) {
+      $('owner').value = s.owner || ''; $('private').value = (s.private_dirs || []).join('\n'); drawSuggest(s.suggest || []);
+      all = s.channels || []; strong = s.strong || []; cheap = s.cheap || null; drawChannels();
+    });
+  }
+  $('private').addEventListener('input', function () { Array.prototype.forEach.call($('suggest').children, function (b) { b.className = lines().indexOf(b.textContent) >= 0 ? 'on' : ''; }); });
+  $('rescan').onclick = load;
+  $('save').onclick = function () {
+    var done = T ? T.core.invoke('setup_save', { owner: $('owner').value.trim(), privateDirs: lines(), strong: strong, cheap: cheap }) : Promise.resolve();
+    done.then(function () { $('saved').hidden = false; setTimeout(function () { if (T) T.window.getCurrentWindow().hide(); }, 1400); }, function (e) { $('saved').hidden = false; $('saved').textContent = '没存成：' + e; });
+  };
+  load();
+})();
+</script>
+</body>
+</html>

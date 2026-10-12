@@ -1,0 +1,32 @@
+/* 由 app/tools/extract-cat.mjs 从 design/ysoul-surface-lab.html 生成，不要手改。 */
+/* ── 箱子 ── */
+.box{position:absolute;width:13cqw;z-index:20;cursor:grab;touch-action:none;outline:none}
+.box svg{width:100%;height:auto;display:block;overflow:visible}
+.box.drop svg{filter:drop-shadow(0 0 .5em var(--clay))}
+.box .count{position:absolute;right:16%;bottom:12%;min-width:1.7em;height:1.7em;border-radius:1em;background:var(--clay);color:var(--white);border:1.5px solid var(--ink);display:grid;place-items:center;font-size:.85em;font-weight:600}
+/* 猫出去了：箱子敞着，里面是空的 */
+svg.empty .o-joy{display:none!important}
+svg.empty .lid{animation:none!important;transform:rotate(62deg)!important}
+
+/* ── 箱子外面的猫：姿态和位置都由脚本里的骨架逐帧算，这里只管几样小东西的显隐 ── */
+.kitty{position:absolute;width:9.8cqw;z-index:25;cursor:grab;touch-action:none}
+.kitty.gone{display:none}
+.kitty.away{visibility:hidden}
+.wnd>header,.bar{cursor:pointer}
+.kitty.held{cursor:grabbing;z-index:40}
+.kitty svg{width:100%;height:auto;display:block;overflow:visible}
+.kq-card,.kq-shut{opacity:0;transition:opacity .16s}
+.kitty[data-s=ask] .kq-card{opacity:1}
+.kitty.shut .kq-shut{opacity:1}
+.kq-ball,.kq-es{opacity:0;transition:opacity .2s}
+.kitty[data-s=work] .kq-ball{opacity:1}
+.kq-es{transform-box:fill-box;transform-origin:center}
+.kitty.turn svg{transform-origin:50% 88%;animation:kqturn .34s ease-in-out}
+@keyframes kqturn{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.28)}}
+.kitty[data-s=joy] .kq-es{opacity:1;animation:kqtw .55s ease-in-out infinite alternate}
+@keyframes kqtw{from{scale:.65;rotate:0deg}to{scale:1.1;rotate:25deg}}
+.kitty[data-s=loaf] .lidE,.kitty[data-s=no] .lidE,.kitty[data-s=work] .lidE,.kitty[data-s=held] .lidE,.kitty[data-s=joy] .lidE{animation:none}
+/* 杯子：桌面上的一个独立物件，由脚本按刚体来算 */
+.cupx{position:absolute;z-index:24;background:var(--sky);border:.14em solid var(--ink);border-radius:.2em;pointer-events:none;box-sizing:border-box}
+.bar i.lit{background:var(--clay)}
+

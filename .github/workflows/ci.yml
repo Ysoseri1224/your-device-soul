@@ -1,0 +1,22 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            runtime
+            app/src-tauri
+      - name: Test the core
+        working-directory: runtime
+        run: cargo test
+      - name: Build the pet
+        working-directory: app/src-tauri
+        run: cargo build

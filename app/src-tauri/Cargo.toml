@@ -1,0 +1,23 @@
+[package]
+name = "ysoul-app"
+version = "0.1.0"
+edition = "2021"
+description = "ysoul 在桌面上的样子：猫、对话条、托盘"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_System_SystemInformation", "Win32_UI_Input_KeyboardAndMouse"] }
+ysoul = { path = "../../runtime" }
+
+[profile.release]
+opt-level = "s"
+strip = true

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ysoul</title>
+<link rel="stylesheet" href="cat.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div id="defs"></div>
+  <!-- 整块屏幕。箱子、猫、杯子由引擎放进来 -->
+  <main id="stage"></main>
+  <!-- 此刻条：它认为你现在在干什么 -->
+  <div id="now" class="strip" hidden></div>
+  <!-- 闲话和回话的气泡 -->
+  <div id="bubble" class="pop chat" hidden></div>
+  <!-- 它留在屏幕上的记号：夹在窗口上的条、圈、页边批注 -->
+  <div id="marks"></div>
+  <!-- 爪印：今天它动过手的事，一件一个 -->
+  <div id="paws" hidden></div>
+  <!-- 真全屏时它整个让开；有票等着，才在屏幕边上露半个头 -->
+  <button id="peek" hidden aria-label="ysoul 有事等你">
+    <svg viewBox="0 0 30 44" width="30" height="44"><path d="M30 6 L19 2 L17 12 C7 15 3 23 4 31 C5 38 12 42 30 42 Z" fill="var(--cat)"/><circle cx="19" cy="26" r="5.2" fill="var(--ochre)"/><circle cx="20" cy="26" r="2.6" fill="var(--ink)"/></svg>
+  </button>
+  <!-- 光标旁的一行字：不开对话框，就地问一句 -->
+  <form id="quick" class="pop" hidden><textarea id="quick-in" rows="1" autocomplete="off" placeholder="问一句（回车发送，Shift+回车换行，Esc 收起）" aria-label="就地问 ysoul 一句"></textarea></form>
+  <div id="answer" class="pop chat" hidden></div>
+  <!-- 家的地图 -->
+  <section id="map" class="pop" hidden aria-label="家的地图">
+    <h4>家的地图</h4>
+    <p class="hint">它在每个地方能做什么。点一格就改。没写的地方它能看不能动。</p>
+    <table><thead><tr><th>地方</th><th>看</th><th>放</th><th>改</th><th>扔</th><th>运行</th></tr></thead><tbody id="map-rows"></tbody></table>
+    <p class="hint" id="map-private"></p>
+    <div class="foot"><button data-map="file">用编辑器打开</button><button data-map="close">关上</button></div>
+  </section>
+  <!-- 票：它要动这台机器之前递给你的。做什么、在哪、怎么撤回 -->
+  <section id="ticket" class="pop" hidden aria-label="一张票">
+    <h4 id="tk-title"></h4>
+    <dl>
+      <dt>在哪</dt><dd id="tk-place"></dd>
+      <dt>撤回</dt><dd id="tk-undo"></dd>
+    </dl>
+    <details><summary>要运行的脚本</summary><pre id="tk-script"></pre></details>
+    <pre id="tk-out" hidden></pre>
+    <div class="foot">
+      <button data-tk="do" class="go">做</button>
+      <button data-tk="always" hidden>这个程序以后都行</button>
+      <button data-tk="no">不做</button>
+      <button data-tk="undo" hidden>撤回</button>
+      <button data-tk="close" hidden>知道了</button>
+      <span id="tk-more"></span>
+    </div>
+  </section>
+  <!-- 箱子摊开 -->
+  <section id="tray" class="pop" hidden aria-label="箱子里的东西">
+    <div class="cols">
+      <div class="col"><h5>此刻</h5><p id="tray-now">还不知道</p></div>
+      <div class="col"><h5>身体</h5><p id="tray-body">—</p></div>
+      <div class="col wide"><h5>今天</h5><ul id="tray-day"><li>还没有记下什么</li></ul></div>
+      <div class="col wide" id="tray-done-col" hidden><h5>今天动过的手（点开能看、能撤回）</h5><ul id="tray-done"></ul></div>
+    </div>
+    <div class="foot">
+      <button data-do="talk" class="go">聊聊</button>
+      <button data-do="out">出来</button>
+      <button data-do="map">家的地图</button>
+      <button data-do="notes">你记了我什么</button>
+      <button data-do="diary">今天的日记</button>
+      <button data-do="dnd">这阵子别出声</button>
+    </div>
+  </section>
+  <!-- 说话的地方 -->
+  <section id="talk" class="pop" hidden aria-label="和 ysoul 说话">
+    <div id="log" aria-live="polite"></div>
+    <form id="form">
+      <textarea id="input" rows="1" autocomplete="off" placeholder="说点什么（回车发送，Shift+回车换行，Esc 收起）" aria-label="对 ysoul 说的话"></textarea>
+    </form>
+  </section>
+  <script src="skin.js"></script>
+  <script src="catrig.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
